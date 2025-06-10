@@ -21,9 +21,9 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- Form Side -->
-                <div class="col-sm-6 text-white " style="background-color: #003200;">
+                <div class="col-sm-6 text-white" style="background-color: #003200;">
                     <div class="px-5 ms-xl-4">
-                       <img src="{{ asset('images/bliss_logo.png') }}" alt="Logo" style="height: 70px; vertical-align: middle;" class="me-3 mt-2">
+                        <img src="{{ asset('images/bliss_logo.png') }}" alt="Logo" style="height: 70px; vertical-align: middle;" class="me-3 mt-2">
                         <span class="h1 fw-bold mb-0">Bliss Coffee</span>
                     </div>
 
@@ -31,7 +31,7 @@
                         <form method="POST" action="{{ route('login') }}" style="width: 23rem;">
                             @csrf
 
-                            <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;" style="text-color: #FFFFFF;">Log in</h3>
+                            <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color: #FFFFFF;">Log in</h3>
 
                             <!-- Email -->
                             <div class="form-outline mb-4">
@@ -83,11 +83,10 @@
 
                 <!-- Image Side -->
                 <div class="col-sm-6 px-0 d-none d-sm-block">
-                   <img src="{{ asset('images/coffee_bg.jpg') }}"
-                        alt="Login image" 
-                        class="w-100 vh-100" 
-                        style="object-fit: cover; object-position: left;">
-
+                    <img src="{{ asset('images/coffee_bg.jpg') }}"
+                         alt="Login image"
+                         class="w-100 vh-100"
+                         style="object-fit: cover; object-position: left;">
                 </div>
             </div>
         </div>

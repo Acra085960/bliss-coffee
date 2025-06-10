@@ -46,5 +46,13 @@ class DatabaseSeeder extends Seeder
         'password' => Hash::make('password'),
         'role' => 'pembeli',
     ]);
+
+
+        // Memanggil seeder yang telah dibuat
+        $this->call([
+            OrderSeeder::class,
+            MenuSeeder::class,
+        ]);
+    }
 }
-}
+
