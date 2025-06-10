@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -23,29 +24,42 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
-{
-    $request->authenticate();
+    {
+        // Debug: Log the login attempt
+        Log::info('Login attempt for email: ' . $request->email);
+        
+        $request->authenticate();
+        $request->session()->regenerate();
 
-    $request->session()->regenerate();
+        $user = auth()->user();
+        
+        // Debug: Log successful login
+        Log::info('User logged in: ' . $user->email . ' with role: ' . $user->role);
+        
+        // Assign role using Spatie Permission if not already assigned
+        if (!$user->hasAnyRole(['pembeli', 'penjual', 'manajer', 'owner'])) {
+            $user->assignRole($user->role);
+            Log::info('Assigned role ' . $user->role . ' to user ' . $user->email);
+        }
 
-    // Debug: Periksa role pengguna
-    dd(auth()->user()->role);  // Pastikan role sesuai (penjual, manajer, owner, dll.)
-
-    switch (auth()->user()->role) {
-        case 'pembeli':
-            return redirect()->intended('/pembeli/dashboard');
-        case 'penjual':
-            return redirect()->intended('/penjual/dashboard');
-        case 'manajer':
-            return redirect()->intended('/manajer/dashboard');
-        case 'owner':
-            return redirect()->intended('/owner/dashboard');
+        // Redirect based on role from Spatie Permission
+        $role = $user->getRoleNames()->first();
+        
+        Log::info('Redirecting user with role: ' . $role);
+        
+        switch ($role) {
+            case 'pembeli':
+                return redirect()->intended(route('customer.dashboard'));
+            case 'penjual':
+                return redirect()->intended(route('penjual.dashboard'));
+            case 'manajer':
+                return redirect()->intended(route('manajer.dashboard'));
+            case 'owner':
+                return redirect()->intended(route('owner.dashboard'));
+            default:
+                return redirect()->intended('/dashboard');
+        }
     }
-
-    return redirect()->intended('/');
-}
-
-
 
     /**
      * Destroy an authenticated session.

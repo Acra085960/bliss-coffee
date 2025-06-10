@@ -13,10 +13,21 @@ class RoleMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!in_array($request->user()->role, $roles)) {
-            abort(403); // Forbidden
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $user = auth()->user();
+        
+        // Ensure user has role assigned in Spatie Permission
+        if (!$user->hasAnyRole(['pembeli', 'penjual', 'manajer', 'owner'])) {
+            $user->assignRole($user->role);
+        }
+
+        if (!$user->hasRole($role)) {
+            abort(403, 'Unauthorized access');
         }
 
         return $next($request);

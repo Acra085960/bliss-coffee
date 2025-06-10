@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Order;
@@ -10,21 +9,33 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Mendapatkan role dari user yang sedang login
-        $role = auth()->user()->role;
+        // Memeriksa apakah pengguna sudah login
+        if (!auth()->check()) {
+            return redirect()->route('login');  // Jika pengguna belum login, redirect ke login
+        }
 
-        // Menyesuaikan dashboard berdasarkan role
+        $user = auth()->user();
+        
+        // Memastikan pengguna memiliki role yang ditugaskan di Spatie Permission
+        if (!$user->hasAnyRole(['pembeli', 'penjual', 'manajer', 'owner'])) {
+            $user->assignRole($user->role);
+        }
+
+        // Mendapatkan role dari Spatie Permission
+        $role = $user->getRoleNames()->first();
+
+        // Mengarahkan ke dashboard berdasarkan role
         switch ($role) {
             case 'penjual':
-                return $this->penjualDashboard();
+                return redirect()->route('penjual.dashboard');
             case 'manajer':
-                return $this->manajerDashboard();
+                return redirect()->route('manajer.dashboard');
             case 'owner':
-                return $this->ownerDashboard();
+                return redirect()->route('owner.dashboard');
             case 'pembeli':
-                return $this->pembeliDashboard();
+                return redirect()->route('customer.dashboard');
             default:
-                return abort(403); // Jika role tidak ditemukan
+                return abort(403, 'Role tidak valid'); // Jika role tidak ditemukan
         }
     }
 
