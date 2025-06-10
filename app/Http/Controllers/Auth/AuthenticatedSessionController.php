@@ -24,30 +24,48 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
-
-        $request->session()->regenerate();
-        switch (auth()->user()->role) {
-            case 'pembeli': return redirect()->intended('/pembeli/dashboard');
-            case 'penjual': return redirect()->intended('/penjual/dashboard');
-            case 'manajer': return redirect()->intended('/manajer/dashboard');
-            case 'owner': return redirect()->intended('/owner/dashboard');
+        // Manually attempt to log in the user
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $request->session()->regenerate();
+        
+            // Log the authenticated user for debugging
+            \Log::info('Authenticated user: ' . auth()->user()->email);
+            \Log::info('Authenticated user role: ' . auth()->user()->role);
+    
+            // Check role after successful authentication
+            switch (auth()->user()->role) {
+                case 'penjual':
+                    return redirect()->intended('/penjual/dashboard');
+                case 'pembeli':
+                    return redirect()->intended('/customer/dashboard');
+                default:
+                    return redirect()->intended('/');
+            }
         }
     
-        return redirect()->intended('/');
+        // If authentication fails, return to login with an error message
+        return redirect()->route('login')->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
+    
+    
+
+    
 
     /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Log the user out and invalidate the session
         Auth::guard('web')->logout();
 
+        // Invalidate the session and regenerate CSRF token for security
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
+        // Redirect to the home page
         return redirect('/');
     }
 }
