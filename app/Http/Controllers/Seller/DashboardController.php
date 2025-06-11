@@ -9,6 +9,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return view('admin.dashboard'); // Ganti ke 'penjual.dashboard' jika tersedia
+        $totalOrders = \App\Models\Order::count();
+        $activeMenus = \App\Models\Menu::count();
+        $stockSum = \App\Models\Stock::sum('quantity');
+        $isStockLow = $stockSum < 20;
+
+        return view('admin.dashboard', compact('totalOrders', 'activeMenus', 'stockSum', 'isStockLow'));
     }
 }

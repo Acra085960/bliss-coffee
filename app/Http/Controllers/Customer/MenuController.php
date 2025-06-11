@@ -9,6 +9,17 @@ class MenuController extends Controller
 {
     public function index()
     {
-        return view('customer.menu'); // Or some placeholder view
+        $menus = \App\Models\Menu::all(); 
+        return view('admin.menu.index' , compact('menus'));
+    }
+
+    public function create()
+    {
+        return view('admin.menu.create');
+    }
+
+    public function edit(Menu $menu)
+    {
+        return view('admin.menu.edit', compact('menu'));
     }
 }

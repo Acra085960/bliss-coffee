@@ -6,7 +6,7 @@
   <div class="col-lg-4 col-md-6 col-12">
     <div class="small-box bg-info">
       <div class="inner">
-        <h3>12</h3>
+        <h3>{{ $totalOrders }}</h3>
         <p>Total Pesanan</p>
       </div>
       <div class="icon">
@@ -19,7 +19,7 @@
   <div class="col-lg-4 col-md-6 col-12">
     <div class="small-box bg-success">
       <div class="inner">
-        <h3>5</h3>
+        <h3>{{ $activeMenus }}</h3>
         <p>Menu Aktif</p>
       </div>
       <div class="icon">
@@ -28,16 +28,21 @@
     </div>
   </div>
 
-  <!-- STOK HABIS -->
-  <div class="col-lg-4 col-md-6 col-12">
-    <div class="small-box bg-warning">
-      <div class="inner">
-        <h3>2</h3>
-        <p>Stok Hampir Habis</p>
-      </div>
-      <div class="icon">
+ <!-- STOK -->
+<div class="col-lg-4 col-md-6 col-12">
+  <div class="small-box {{ $isStockLow ? 'bg-warning' : 'bg-info' }}">
+    <div class="inner">
+      <h3>{{ $stockSum }}</h3>
+      <p>
+        {{ $isStockLow ? 'Stok Hampir Habis' : 'Total Jumlah Stok' }}
+      </p>
+    </div>
+    <div class="icon">
+      @if($isStockLow)
         <i class="fas fa-exclamation-triangle"></i>
-      </div>
+      @else
+        <i class="fas fa-box"></i>
+      @endif
     </div>
   </div>
 </div>

@@ -64,7 +64,10 @@ Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':penjua
     ->name('penjual.')
     ->group(function () {
         Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
-        // Tambahkan route lainnya untuk penjual di sini
+        Route::resource('menu', SellerMenuController::class);
+        Route::resource('orders', SellerOrderController::class);
+        Route::resource('stock', SellerStockController::class);
+        Route::resource('feedback', SellerFeedbackController::class);
     });
 
 
