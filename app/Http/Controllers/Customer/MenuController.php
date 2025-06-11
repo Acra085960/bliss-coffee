@@ -10,7 +10,7 @@ class MenuController extends Controller
     public function index()
     {
         $menus = \App\Models\Menu::all(); 
-        return view('admin.menu.index' , compact('menus'));
+        return view('customer.menu' , compact('menus'));
     }
 
     public function create()

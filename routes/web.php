@@ -55,11 +55,10 @@ Route::middleware([CustomAuthMiddleware::class])->get('/dashboard', function () 
     };
 })->name('dashboard');
 
-
 // ===========================================
 // Role: Penjual
 // ===========================================
-Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':penjual'])
+Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':penjual', 'verified'])
     ->prefix('penjual')
     ->name('penjual.')
     ->group(function () {
@@ -70,11 +69,10 @@ Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':penjua
         Route::resource('feedback', SellerFeedbackController::class);
     });
 
-
 // ===========================================
 // Role: Pembeli
 // ===========================================
-Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':pembeli'])
+Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':pembeli', 'verified'])
     ->prefix('customer')
     ->name('customer.')
     ->group(function () {
@@ -89,11 +87,10 @@ Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':pembel
         Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders');
     });
 
-
 // ===========================================
 // Role: Owner
 // ===========================================
-Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':owner'])
+Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':owner', 'verified'])
     ->prefix('owner')
     ->name('owner.')
     ->group(function () {
@@ -102,11 +99,10 @@ Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':owner'
         Route::get('/reports', [ReportController::class, 'index'])->name('reports');
     });
 
-
 // ===========================================
 // Role: Manajer
 // ===========================================
-Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':manajer'])
+Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':manajer', 'verified'])
     ->prefix('manajer')
     ->name('manajer.')
     ->group(function () {
@@ -114,10 +110,9 @@ Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':manaje
         // Tambahkan route lainnya untuk manajer di sini
     });
 
-
 // ===========================================
 // Profile (Umum untuk semua user yang login)
-Route::middleware([CustomAuthMiddleware::class])->group(function () {
+Route::middleware([CustomAuthMiddleware::class, 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
