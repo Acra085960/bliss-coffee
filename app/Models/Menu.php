@@ -17,12 +17,19 @@ class Menu extends Model
         'name',         // Nama menu
         'description',  // Deskripsi menu
         'price',        // Harga menu
-        'stock',        // Jumlah stok menu
+        'image',        // Gambar menu
+        'is_available'  // Ketersediaan menu
+    ];
+
+    // Tentukan tipe data untuk kolom tertentu
+    protected $casts = [
+        'price' => 'decimal:2',    // Mengatur kolom price sebagai decimal dengan 2 angka di belakang koma
+        'is_available' => 'boolean', // Mengatur kolom is_available sebagai boolean
     ];
 
     // Relasi: Satu menu bisa ada di banyak detail pesanan
-    public function orderDetails()
+    public function orderItems()
     {
-        return $this->hasMany(OrderDetail::class);
+        return $this->hasMany(OrderItem::class);
     }
 }

@@ -7,7 +7,6 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -25,27 +24,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Debug: Log the login attempt
-        Log::info('Login attempt for email: ' . $request->email);
-        
         $request->authenticate();
         $request->session()->regenerate();
 
         $user = auth()->user();
         
-        // Debug: Log successful login
-        Log::info('User logged in: ' . $user->email . ' with role: ' . $user->role);
-        
         // Assign role using Spatie Permission if not already assigned
         if (!$user->hasAnyRole(['pembeli', 'penjual', 'manajer', 'owner'])) {
             $user->assignRole($user->role);
-            Log::info('Assigned role ' . $user->role . ' to user ' . $user->email);
         }
 
         // Redirect based on role from Spatie Permission
         $role = $user->getRoleNames()->first();
-        
-        Log::info('Redirecting user with role: ' . $role);
         
         switch ($role) {
             case 'pembeli':

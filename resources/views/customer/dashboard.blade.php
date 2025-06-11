@@ -1,80 +1,139 @@
-<!-- resources/views/customer/dashboard.blade.php -->
-
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">{{ __('Customer Dashboard') }}</div>
+    <div class="container">
+        <h1>Selamat datang, {{ auth()->user()->name }}!</h1>
 
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card text-white bg-primary mb-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Orders</h5>
-                                    <p class="card-text">{{ $totalOrders }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card text-white bg-success mb-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">Total Spent</h5>
-                                    <p class="card-text">Rp {{ number_format($totalSpent, 0, ',', '.') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
 
-                    @if($recentOrders->count() > 0)
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">Recent Orders</div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Order ID</th>
-                                                    <th>Date</th>
-                                                    <th>Status</th>
-                                                    <th>Total</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($recentOrders as $order)
-                                                <tr>
-                                                    <td>#{{ $order->id }}</td>
-                                                    <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                                                    <td>
-                                                        <span class="badge badge-{{ $order->status === 'completed' ? 'success' : ($order->status === 'pending' ? 'warning' : 'info') }}">
-                                                            {{ ucfirst($order->status) }}
-                                                        </span>
-                                                    </td>
-                                                    <td>Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Total Pesanan dan Pengeluaran -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">Total Pesanan</div>
+                    <div class="card-body">
+                        <p>{{ $totalOrders }} Pesanan</p>
                     </div>
-                    @endif
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">Total Pengeluaran</div>
+                    <div class="card-body">
+                        <p>Rp {{ number_format($totalSpent, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">Keranjang</div>
+                    <div class="card-body">
+                        <a href="{{ route('customer.cart') }}" class="btn btn-outline-primary">Lihat Keranjang</a>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Daftar Pesanan Terbaru -->
+        @if($recentOrders->count() > 0)
+        <h2 class="mt-4">Pesanan Terbaru</h2>
+        <div class="row">
+            @foreach ($recentOrders as $order)
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            Pesanan #{{ $order->id }}
+                        </div>
+                        <div class="card-body">
+                            <p>Status: <span class="badge badge-{{ $order->status === 'completed' ? 'success' : ($order->status === 'pending' ? 'warning' : 'info') }}">{{ ucfirst($order->status) }}</span></p>
+                            <p>Total: Rp {{ number_format($order->total_price, 0, ',', '.') }}</p>
+                            <a href="{{ route('customer.orders') }}" class="btn btn-primary">Lihat Pesanan</a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        @endif
+
+        <!-- Daftar Menu -->
+        @if(isset($menus) && $menus->count() > 0)
+        <h2 class="mt-4">Menu Kami</h2>
+        <div class="row">
+            @foreach ($menus as $menu)
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        @if($menu->image)
+                            <img src="{{ asset('images/'.$menu->image) }}" class="card-img-top" alt="{{ $menu->name }}" style="height: 200px; object-fit: cover;">
+                        @else
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span class="text-muted">No Image</span>
+                            </div>
+                        @endif
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $menu->name }}</h5>
+                            <p class="card-text">{{ $menu->description ?? 'Deskripsi tidak tersedia' }}</p>
+                            <p class="card-text"><strong>Rp {{ number_format($menu->price, 0, ',', '.') }}</strong></p>
+                            
+                            <!-- Form untuk menambah ke keranjang -->
+                            <form action="{{ route('customer.cart.add') }}" method="POST" class="add-to-cart-form">
+                                @csrf
+                                <input type="hidden" name="menu_id" value="{{ $menu->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary btn-add-cart">
+                                    <span class="btn-text">Tambah ke Keranjang</span>
+                                    <span class="btn-loading d-none">
+                                        <span class="spinner-border spinner-border-sm" role="status"></span>
+                                        Menambahkan...
+                                    </span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        @else
+        <div class="alert alert-info mt-4">
+            <h4>Menu belum tersedia</h4>
+            <p>Saat ini belum ada menu yang tersedia. Silakan cek kembali nanti.</p>
+        </div>
+        @endif
+
+        <!-- Link ke halaman menu lengkap -->
+        <div class="text-center mt-4">
+            <a href="{{ route('customer.test') }}" class="btn btn-outline-primary btn-lg">Lihat Semua Menu</a>
+        </div>
     </div>
-</div>
-@endsection
-@section('scripts')
+
     <script>
-        // Tambahkan skrip JavaScript jika diperlukan
-        console.log('Dashboard Pembeli loaded');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle add to cart form submissions
+        const forms = document.querySelectorAll('.add-to-cart-form');
+        
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const button = this.querySelector('.btn-add-cart');
+                const btnText = button.querySelector('.btn-text');
+                const btnLoading = button.querySelector('.btn-loading');
+                
+                // Show loading state
+                button.disabled = true;
+                btnText.classList.add('d-none');
+                btnLoading.classList.remove('d-none');
+                
+                // Re-enable button after 3 seconds (fallback)
+                setTimeout(() => {
+                    button.disabled = false;
+                    btnText.classList.remove('d-none');
+                    btnLoading.classList.add('d-none');
+                }, 3000);
+            });
+        });
+    });
     </script>
 @endsection

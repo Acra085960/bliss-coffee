@@ -11,11 +11,13 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** 
+     * Menggunakan trait HasFactory dan Notifiable serta HasRoles untuk manajemen role.
+     */
     use HasFactory, Notifiable, HasRoles;
 
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang bisa di-assign secara massal.
      *
      * @var list<string>
      */
@@ -23,11 +25,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // Tambahkan role ke fillable
+        'role', // Menambahkan 'role' ke dalam fillable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang perlu disembunyikan saat serialisasi.
      *
      * @var list<string>
      */
@@ -37,15 +39,15 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Atribut yang akan di-cast ke tipe data lain.
      *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at' => 'datetime', // Menentukan casting untuk email_verified_at
+            'password' => 'hashed',           // Menandakan password harus di-hash
         ];
     }
 }

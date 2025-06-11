@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
@@ -29,7 +28,7 @@ use App\Http\Controllers\Manager\DashboardController as ManagerDashboardControll
 
 // Redirect root
 Route::get('/', function () {
-    return view('auth.login');
+    return view('auth.login');  // Pastikan halaman login tersedia
 });
 
 // Auth routes (Breeze)
@@ -44,13 +43,17 @@ Route::middleware(['auth'])->get('/dashboard', [DashboardController::class, 'ind
 // Role: Penjual (Seller)
 // ===========================================
 Route::middleware(['auth', 'role:penjual'])->prefix('penjual')->name('penjual.')->group(function () {
-    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');  // Penjual Dashboard
+
     Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
     Route::put('/orders/{order}/status', [SellerOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
     Route::get('/stock', [SellerStockController::class, 'index'])->name('stock.index');
     Route::post('/stock/update', [SellerStockController::class, 'update'])->name('stock.update');
-    Route::resource('/menu', SellerMenuController::class)->except(['show']);
+
+    Route::resource('/menu', SellerMenuController::class)->except(['show']); // CRUD Menu
+
     Route::get('/feedback', [SellerFeedbackController::class, 'index'])->name('feedback.index');
 });
 
@@ -59,12 +62,15 @@ Route::middleware(['auth', 'role:penjual'])->prefix('penjual')->name('penjual.')
 // ===========================================
 Route::middleware(['auth', 'role:pembeli'])->prefix('customer')->name('customer.')->group(function () {
     Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/test', [MenuController::class, 'index']);
+    Route::get('/menu', [MenuController::class, 'index'])->name('test');
+
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+
     Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders');
 });
 
@@ -72,16 +78,16 @@ Route::middleware(['auth', 'role:pembeli'])->prefix('customer')->name('customer.
 // Role: Owner
 // ===========================================
 Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {
-    Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');  // Owner Dashboard
+    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');  // Kelola pegawai
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports');  // Laporan
 });
 
 // ===========================================
 // Role: Manajer (Manager)
 // ===========================================
 Route::middleware(['auth', 'role:manajer'])->prefix('manajer')->name('manajer.')->group(function () {
-    Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');  // Manajer Dashboard
     // Add more manager-specific routes here
 });
 

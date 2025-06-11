@@ -15,13 +15,38 @@ class Order extends Model
     // Tentukan kolom yang dapat diisi massal (mass assignable)
     protected $fillable = [
         'user_id',           // ID user yang membuat pesanan
+        'customer_name',     // Nama pelanggan
+        'customer_phone',    // Nomor telepon pelanggan
         'total_price',       // Total harga pesanan
         'status',            // Status pesanan (pending, completed, dll.)
+        'notes'              // Catatan tambahan untuk pesanan
     ];
 
-    // Relasi: Satu order bisa memiliki banyak detail pesanan (misalnya, produk atau menu yang dipesan)
-    public function orderDetails()
+    protected $casts = [
+        'total_price' => 'decimal:2',
+    ];
+
+    // Relasi: Satu order dimiliki oleh satu user
+    public function user()
     {
-        return $this->hasMany(OrderDetail::class);
+        return $this->belongsTo(User::class);
+    }
+
+    // Relasi: Satu order bisa memiliki banyak item pesanan (misalnya, produk atau menu yang dipesan)
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    // Relasi: Satu order bisa memiliki satu umpan balik (feedback)
+    public function feedback()
+    {
+        return $this->hasOne(Feedback::class);
+    }
+
+    // Cek apakah order memiliki umpan balik
+    public function hasFeedback()
+    {
+        return $this->feedback()->exists();
     }
 }

@@ -5,21 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Feedback extends Model
+class OrderItem extends Model
 {
     use HasFactory;
 
-    protected $table = 'feedback';
-
     protected $fillable = [
         'order_id',
-        'user_id',
-        'rating',
-        'comment'
+        'menu_id',
+        'quantity',
+        'price'
     ];
 
     protected $casts = [
-        'rating' => 'integer',
+        'price' => 'decimal:2',
+        'quantity' => 'integer',
     ];
 
     public function order()
@@ -27,8 +26,8 @@ class Feedback extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function user()
+    public function menu()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Menu::class);
     }
 }
