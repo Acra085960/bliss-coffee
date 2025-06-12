@@ -8,12 +8,11 @@ use App\Models\Menu;
 
 class MenuController extends Controller
 {
-    public function index()
+   public function index()
     {
-        $menus = Menu::all();
-        return view('admin.menu.index', compact('menus'));
+        $menus = \App\Models\Menu::all(); 
+        return view('admin.menu.index' , compact('menus'));
     }
-
     public function create()
     {
         return view('admin.menu.create');
@@ -21,39 +20,49 @@ class MenuController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'price' => 'required|numeric',
-            'description' => 'nullable|string',
+        // Validate the form data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|numeric|min:0',
         ]);
 
-        Menu::create($request->only('name', 'price', 'description'));
+        // Create the new menu item
+        Menu::create([
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+            'stock' => $validated['stock'],
+        ]);
 
-        return redirect()->route('penjual.menu.index')->with('success', 'Menu berhasil ditambahkan.');
+        // Redirect back with a success message
+        return redirect()->route('penjual.menu.index')->with('success', 'Menu item created successfully!');
     }
-
+    
     public function edit(Menu $menu)
     {
         return view('admin.menu.edit', compact('menu'));
     }
 
+
     public function update(Request $request, Menu $menu)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'price' => 'required|numeric',
-            'description' => 'nullable|string',
+        // Validate the form data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|numeric|min:0',
         ]);
 
-        $menu->update($request->only('name', 'price', 'description'));
+        // Update the menu item
+        $menu->update($validated);
 
-        return redirect()->route('penjual.menu.index')->with('success', 'Menu berhasil diperbarui.');
+        // Redirect back with a success message
+        return redirect()->route('penjual.menu.index')->with('success', 'Menu item updated successfully!');
     }
 
     public function destroy(Menu $menu)
     {
         $menu->delete();
-
-        return redirect()->route('penjual.menu.index')->with('success', 'Menu berhasil dihapus.');
+        return redirect()->route('penjual.menu.index')->with('success', 'Menu item deleted successfully!');
     }
 }

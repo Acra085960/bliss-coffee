@@ -26,75 +26,94 @@ use App\Http\Controllers\Owner\EmployeeController;
 // Manager Controllers
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 
-// Redirect root
+// Middleware
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\CustomAuthMiddleware;
+
+// Redirect root to login
 Route::get('/', function () {
     return view('auth.login');  // Pastikan halaman login tersedia
 });
 
-// Auth routes (Breeze)
+// Route test middleware
+Route::get('/test-role', function () {
+    return 'Role middleware works!';
+})->middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':penjual']);
+
+// Auth routes (from Breeze)
 require __DIR__.'/auth.php';
 
-// ===========================================
-// General authenticated route (optional dashboard redirect)
-// ===========================================
-Route::middleware(['auth'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// Dashboard redirect after login
+Route::middleware([CustomAuthMiddleware::class])->get('/dashboard', function () {
+    $role = auth()->user()->role;
+
+    return match ($role) {
+        'pembeli' => redirect()->route('customer.menu'),
+        'penjual' => redirect()->route('penjual.dashboard'),
+        'manajer' => redirect()->route('manajer.dashboard'),
+        'owner'   => redirect()->route('owner.dashboard'),
+        default   => abort(403),
+    };
+})->name('dashboard');
 
 // ===========================================
 // Role: Penjual (Seller)
 // ===========================================
-Route::middleware(['auth', 'role:penjual'])->prefix('penjual')->name('penjual.')->group(function () {
-    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');  // Penjual Dashboard
-
-    Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
-    Route::put('/orders/{order}/status', [SellerOrderController::class, 'updateStatus'])->name('orders.updateStatus');
-
-    Route::get('/stock', [SellerStockController::class, 'index'])->name('stock.index');
-    Route::post('/stock/update', [SellerStockController::class, 'update'])->name('stock.update');
-
-    Route::resource('/menu', SellerMenuController::class)->except(['show']); // CRUD Menu
-
-    Route::get('/feedback', [SellerFeedbackController::class, 'index'])->name('feedback.index');
-});
+Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':penjual', 'verified'])
+    ->prefix('penjual')
+    ->name('penjual.')
+    ->group(function () {
+        Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
+        Route::resource('menu', SellerMenuController::class);
+        Route::resource('orders', SellerOrderController::class);
+        Route::resource('stock', SellerStockController::class);
+        Route::resource('feedback', SellerFeedbackController::class);
+    });
 
 // ===========================================
 // Role: Pembeli (Buyer)
 // ===========================================
-Route::middleware(['auth', 'role:pembeli'])->prefix('customer')->name('customer.')->group(function () {
-    Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/menu', [MenuController::class, 'index'])->name('test');
+Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':pembeli', 'verified'])
+    ->prefix('customer')
+    ->name('customer.')
+    ->group(function () {
+        Route::get('/menu', [MenuController::class, 'index'])->name('menu');
+        Route::get('/cart', [CartController::class, 'index'])->name('cart');
+        Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+        Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 
-    Route::get('/cart', [CartController::class, 'index'])->name('cart');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+        Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-
-    Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders');
-});
+        Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders');
+    });
 
 // ===========================================
 // Role: Owner
 // ===========================================
-Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {
-    Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');  // Owner Dashboard
-    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');  // Kelola pegawai
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports');  // Laporan
-});
+Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':owner', 'verified'])
+    ->prefix('owner')
+    ->name('owner.')
+    ->group(function () {
+        Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    });
 
 // ===========================================
 // Role: Manajer (Manager)
 // ===========================================
-Route::middleware(['auth', 'role:manajer'])->prefix('manajer')->name('manajer.')->group(function () {
-    Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');  // Manajer Dashboard
-    // Add more manager-specific routes here
-});
+Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':manajer', 'verified'])
+    ->prefix('manajer')
+    ->name('manajer.')
+    ->group(function () {
+        Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
+        // Tambahkan route lainnya untuk manajer di sini
+    });
 
 // ===========================================
-// Profile (umum)
-// ===========================================
-Route::middleware(['auth'])->group(function () {
+// Profile (Umum untuk semua user yang login)
+Route::middleware([CustomAuthMiddleware::class, 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

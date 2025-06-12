@@ -1,18 +1,59 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6">
-    <h1 class="text-2xl font-semibold mb-4">Dashboard Penjual</h1>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <x-dashboard-card title="Total Pesanan" :value="$totalOrders" icon="shopping-cart" />
-        <x-dashboard-card title="Menu Aktif" :value="$activeMenus" icon="coffee" />
-        <x-dashboard-card title="Stok Hampir Habis" :value="$lowStocks" icon="alert-circle" />
+<div class="row">
+  <!-- TOTAL PESANAN -->
+  <div class="col-lg-4 col-md-6 col-12">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>{{ $totalOrders }}</h3>
+        <p>Total Pesanan</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-shopping-cart"></i>
+      </div>
     </div>
+  </div>
 
-    <div class="mt-6">
-        <h2 class="text-lg font-medium mb-2">Pesanan Terbaru</h2>
-        <x-order-table :orders="$latestOrders" />
+  <!-- MENU AKTIF -->
+  <div class="col-lg-4 col-md-6 col-12">
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>{{ $activeMenus }}</h3>
+        <p>Menu Aktif</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-coffee"></i>
+      </div>
     </div>
+  </div>
+
+ <!-- STOK -->
+<div class="col-lg-4 col-md-6 col-12">
+  <div class="small-box {{ $isStockLow ? 'bg-warning' : 'bg-info' }}">
+    <div class="inner">
+      <h3>{{ $stockSum }}</h3>
+      <p>
+        {{ $isStockLow ? 'Stok Hampir Habis' : 'Total Jumlah Stok' }}
+      </p>
+    </div>
+    <div class="icon">
+      @if($isStockLow)
+        <i class="fas fa-exclamation-triangle"></i>
+      @else
+        <i class="fas fa-box"></i>
+      @endif
+    </div>
+  </div>
+</div>
+
+<!-- Card Section -->
+<div class="card mt-3">
+  <div class="card-header">
+    <h3 class="card-title">Pesanan Terbaru</h3>
+  </div>
+  <div class="card-body">
+    <p>Belum ada pesanan masuk.</p>
+  </div>
 </div>
 @endsection

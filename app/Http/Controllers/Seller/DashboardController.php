@@ -22,5 +22,11 @@ class DashboardController extends Controller
             'completedOrders',
             'menuCount'
         ));
+        $totalOrders = \App\Models\Order::count();
+        $activeMenus = \App\Models\Menu::count();
+        $stockSum = \App\Models\Stock::sum('quantity');
+        $isStockLow = $stockSum < 20;
+
+        return view('admin.dashboard', compact('totalOrders', 'activeMenus', 'stockSum', 'isStockLow'));
     }
 }

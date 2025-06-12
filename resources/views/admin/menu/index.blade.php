@@ -2,37 +2,51 @@
 
 @section('content')
 <div class="p-6">
-    <div class="flex justify-between items-center mb-4">
-        <h1 class="text-xl font-semibold">Daftar Menu</h1>
-        <a href="{{ route('admin.menu.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">+ Tambah Menu</a>
+    <!-- Header Section with Title and Add Menu Button -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold">Daftar Menu</h1>
+        <!-- Add Menu Button -->
+        <button onclick="window.location='{{ route('penjual.menu.create') }}'" 
+            class="btn btn-primary btn-lg rounded-lg mt-6 mb-6">
+            <i class="fas fa-plus-circle mr-2"></i> Tambah Menu
+        </button>
     </div>
 
-    <table class="w-full table-auto border">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="p-2 text-left">Nama</th>
-                <th class="p-2 text-left">Harga</th>
-                <th class="p-2 text-left">Stok</th>
-                <th class="p-2">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($menus as $menu)
-            <tr>
-                <td class="p-2">{{ $menu->name }}</td>
-                <td class="p-2">Rp {{ number_format($menu->price, 0, ',', '.') }}</td>
-                <td class="p-2">{{ $menu->stock }}</td>
-                <td class="p-2">
-                    <a href="{{ route('admin.menu.edit', $menu->id) }}" class="text-blue-500 mr-2">Edit</a>
-                    <form action="{{ route('admin.menu.destroy', $menu->id) }}" method="POST" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button class="text-red-500" onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    <!-- Table for Menu List -->
+    <div class="overflow-x-auto bg-white shadow rounded-lg mb-6">
+        <table class="w-full table-auto border-collapse">
+            <thead class="bg-gray-200 text-left">
+                <tr>
+                    <th class="p-4 font-medium text-sm text-gray-700">Nama</th>
+                    <th class="p-4 font-medium text-sm text-gray-700">Harga</th>
+                    <th class="p-4 font-medium text-sm text-gray-700">Stok</th>
+                    <th class="p-4 font-medium text-sm text-gray-700">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm text-gray-600">
+                @foreach ($menus as $menu)
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4">{{ $menu->name }}</td>
+                    <td class="p-4">Rp {{ number_format($menu->price, 0, ',', '.') }}</td>
+                    <td class="p-4">{{ $menu->stock }}</td>
+                    <td class="p-4">
+                        <div class="flex items-center justify-start">
+                            <a href="{{ route('penjual.menu.edit', $menu->id) }}" class="text-blue-500 hover:text-blue-700 mr-4 transition duration-300">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <form action="{{ route('penjual.menu.destroy', $menu->id) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button class="text-red-500 hover:text-red-700 transition duration-300" onclick="return confirm('Yakin ingin menghapus?')">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection

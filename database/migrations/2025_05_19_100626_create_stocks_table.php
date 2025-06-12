@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('stocks', function (Blueprint $table) {
-            $table->id();
+             $table->id();
+            $table->string('name'); // Name of the ingredient (e.g., susu, kopi)
+            $table->integer('quantity'); // Amount of the ingredient in stock
+            $table->string('unit'); // Measurement unit (e.g., liter, kg)
+            $table->text('description')->nullable(); // Optional description
             $table->timestamps();
         });
     }
