@@ -74,9 +74,34 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Penjual: penjual@bliss.com / password');
         $this->command->info('Pembeli: pembeli@bliss.com / password');
 
+        // Create additional test customer accounts to demonstrate registration
+        $additionalCustomers = [
+            [
+                'name' => 'John Doe',
+                'email' => 'john@example.com',
+                'password' => Hash::make('password123'),
+                'role' => 'pembeli',
+                'email_verified_at' => now(),
+            ],
+            [
+                'name' => 'Jane Smith',
+                'email' => 'jane@example.com',
+                'password' => Hash::make('password123'),
+                'role' => 'pembeli',
+                'email_verified_at' => now(),
+            ]
+        ];
+
+        foreach ($additionalCustomers as $customerData) {
+            $customer = User::create($customerData);
+            $customer->assignRole($customerData['role']);
+            $this->command->info("Created customer: {$customerData['email']} with role: {$customerData['role']}");
+        }
+
         // Call other seeders in correct order
         $this->call([
             MenuSeeder::class,
+            StockSeeder::class,
             OrderSeeder::class,
         ]);
     }

@@ -11,9 +11,11 @@ return new class extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('price');
-            $table->integer('stock')->default(0);
             $table->text('description')->nullable();
+            $table->decimal('price', 10, 2);
+            $table->string('category')->default('Kopi');
+            $table->string('image')->nullable();
+            $table->boolean('is_available')->default(true);
             $table->timestamps();
         });
     }

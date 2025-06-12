@@ -1,8 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Riwayat Pesanan</h1>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Riwayat Pesanan</h1>
+            <p class="text-muted">Lihat dan kelola semua pesanan Anda</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ route('customer.menu') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Pesan Lagi
+            </a>
+        </div>
+    </div>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -11,137 +21,220 @@
         </div>
     @endif
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <!-- Order Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h3 class="text-primary">{{ $stats['total_orders'] }}</h3>
+                    <small>Total Pesanan</small>
+                </div>
+            </div>
         </div>
-    @endif
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <p class="text-muted">Berikut adalah riwayat pesanan Anda</p>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h3 class="text-success">{{ $stats['completed_orders'] }}</h3>
+                    <small>Pesanan Selesai</small>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6 text-end">
-            <a href="{{ route('customer.dashboard') }}" class="btn btn-primary">Kembali ke Dashboard</a>
-            <a href="{{ route('customer.test') }}" class="btn btn-outline-primary ms-2">Lihat Menu</a>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h3 class="text-warning">{{ $stats['pending_orders'] }}</h3>
+                    <small>Pesanan Aktif</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h3 class="text-info">Rp {{ number_format($stats['total_spent'], 0, ',', '.') }}</h3>
+                    <small>Total Belanja</small>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Favorite Items -->
+    @if($stats['favorite_items']->count() > 0)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Menu Favorit Anda</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach($stats['favorite_items'] as $item)
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-heart text-danger me-2"></i>
+                                <div>
+                                    <strong>{{ $item->name }}</strong><br>
+                                    <small class="text-muted">Dipesan {{ $item->total_quantity }} kali</small>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Filters -->
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <select class="form-select" id="statusFilter" onchange="applyFilters()">
+                <option value="">Semua Status</option>
+                <option value="pending" {{ $status == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="processing" {{ $status == 'processing' ? 'selected' : '' }}>Diproses</option>
+                <option value="ready" {{ $status == 'ready' ? 'selected' : '' }}>Siap Diambil</option>
+                <option value="completed" {{ $status == 'completed' ? 'selected' : '' }}>Selesai</option>
+                <option value="cancelled" {{ $status == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" id="periodFilter" onchange="applyFilters()">
+                <option value="7" {{ $period == '7' ? 'selected' : '' }}>7 Hari Terakhir</option>
+                <option value="30" {{ $period == '30' ? 'selected' : '' }}>30 Hari Terakhir</option>
+                <option value="90" {{ $period == '90' ? 'selected' : '' }}>3 Bulan Terakhir</option>
+                <option value="365" {{ $period == '365' ? 'selected' : '' }}>1 Tahun Terakhir</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Orders List -->
     @if($orders->count() > 0)
         <div class="row">
             @foreach($orders as $order)
-                <div class="col-md-12 mb-4">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Pesanan #{{ $order->id }}</h5>
-                            <div>
-                                <span class="badge badge-{{ $order->status === 'completed' ? 'success' : ($order->status === 'pending' ? 'warning' : ($order->status === 'processing' ? 'info' : 'secondary')) }} fs-6 me-2">
-                                    {{ ucfirst($order->status) }}
+            <div class="col-md-12 mb-4">
+                <div class="card order-card">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-0">
+                                    <strong>Pesanan #{{ $order->order_number }}</strong>
+                                    @if(isset($order->payment_method))
+                                        <span class="badge bg-secondary ms-2">{{ ucfirst($order->payment_method) }}</span>
+                                    @endif
+                                </h6>
+                                <small class="text-muted">{{ $order->created_at->format('d M Y, H:i') }}</small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <span class="badge bg-{{ $order->status === 'completed' ? 'success' : ($order->status === 'pending' ? 'warning' : ($order->status === 'processing' ? 'info' : ($order->status === 'ready' ? 'primary' : 'secondary'))) }} fs-6">
+                                    {{ ucfirst($order->status === 'ready' ? 'Siap Diambil' : $order->status) }}
                                 </span>
-                                @if($order->hasFeedback())
-                                    <span class="badge bg-primary">Feedback Diberikan</span>
+                                @if(isset($order->payment_status))
+                                    <span class="badge bg-{{ $order->payment_status === 'paid' ? 'success' : ($order->payment_status === 'pending' ? 'warning' : 'danger') }} ms-1">
+                                        {{ ucfirst($order->payment_status) }}
+                                    </span>
                                 @endif
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Tanggal:</strong> {{ $order->created_at->format('d M Y, H:i') }}</p>
-                                    <p><strong>Nama:</strong> {{ $order->customer_name }}</p>
-                                    <p><strong>Telepon:</strong> {{ $order->customer_phone }}</p>
-                                    @if($order->notes)
-                                        <p><strong>Catatan:</strong> {{ $order->notes }}</p>
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    <h6>Detail Pesanan:</h6>
-                                    @if($order->orderItems->count() > 0)
-                                        <ul class="list-unstyled">
-                                            @foreach($order->orderItems as $item)
-                                                <li class="mb-1">
-                                                    {{ $item->menu->name ?? 'Menu tidak ditemukan' }} 
-                                                    <span class="text-muted">({{ $item->quantity }}x)</span>
-                                                    <span class="float-end">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                        <hr>
-                                        <div class="d-flex justify-content-between">
-                                            <strong>Total:</strong>
-                                            <strong>Rp {{ number_format($order->total_price, 0, ',', '.') }}</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Order Items -->
+                                <h6>Item Pesanan:</h6>
+                                <div class="order-items mb-3">
+                                    @foreach($order->orderItems as $item)
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="me-3">
+                                            @if($item->menu && $item->menu->image)
+                                                <img src="{{ asset('images/'.$item->menu->image) }}" 
+                                                     alt="{{ $item->menu->name }}" 
+                                                     class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
+                                            @else
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                                     style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-image text-muted small"></i>
+                                                </div>
+                                            @endif
                                         </div>
-                                    @else
-                                        <p class="text-muted">Detail pesanan tidak tersedia</p>
+                                        <div class="flex-grow-1">
+                                            <strong>{{ $item->menu->name ?? 'Menu tidak tersedia' }}</strong>
+                                            <span class="badge bg-light text-dark ms-1">{{ $item->quantity }}x</span>
+                                            @if($item->preferences)
+                                                <br><small class="text-muted">
+                                                    <i class="fas fa-star text-warning"></i> {{ $item->preferences }}
+                                                </small>
+                                            @endif
+                                        </div>
+                                        <div class="text-end">
+                                            <small>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</small>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+
+                                @if($order->notes)
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-sticky-note"></i> <strong>Catatan:</strong> {{ $order->notes }}
+                                    </small>
+                                </div>
+                                @endif
+                            </div>
+                            <div class="col-md-4">
+                                <!-- Order Summary -->
+                                <div class="text-center mb-3">
+                                    <h4 class="text-primary">Rp {{ number_format($order->total_price, 0, ',', '.') }}</h4>
+                                    <small class="text-muted">Total Pesanan</small>
+                                </div>
+
+                                <!-- Order Timeline -->
+                                <div class="timeline-sm mb-3">
+                                    <div class="timeline-item {{ $order->created_at ? 'completed' : '' }}">
+                                        <i class="fas fa-plus-circle"></i>
+                                        <span>Pesanan Dibuat</span>
+                                        @if($order->created_at)
+                                            <small>{{ $order->created_at->format('H:i') }}</small>
+                                        @endif
+                                    </div>
+                                    <div class="timeline-item {{ in_array($order->status, ['processing', 'ready', 'completed']) ? 'completed' : '' }}">
+                                        <i class="fas fa-play-circle"></i>
+                                        <span>Diproses</span>
+                                    </div>
+                                    <div class="timeline-item {{ in_array($order->status, ['ready', 'completed']) ? 'completed' : '' }}">
+                                        <i class="fas fa-bell"></i>
+                                        <span>Siap Diambil</span>
+                                    </div>
+                                    <div class="timeline-item {{ $order->status === 'completed' ? 'completed' : '' }}">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Selesai</span>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-grid gap-2">
+                                    <a href="{{ route('customer.orders.show', $order) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>Detail Lengkap
+                                    </a>
+                                    @if($order->status === 'completed')
+                                        <form action="{{ route('customer.orders.reorder', $order) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-sm w-100">
+                                                <i class="fas fa-redo me-1"></i>Pesan Lagi
+                                            </button>
+                                        </form>
                                     @endif
                                 </div>
                             </div>
-                            
-                            @if($order->status === 'pending')
-                                <div class="mt-3">
-                                    <small class="text-info">
-                                        <i class="fas fa-clock"></i> Pesanan Anda sedang menunggu konfirmasi
-                                    </small>
-                                </div>
-                            @elseif($order->status === 'processing')
-                                <div class="mt-3">
-                                    <small class="text-primary">
-                                        <i class="fas fa-spinner"></i> Pesanan Anda sedang diproses
-                                    </small>
-                                </div>
-                            @elseif($order->status === 'completed')
-                                <div class="mt-3">
-                                    <small class="text-success">
-                                        <i class="fas fa-check-circle"></i> Pesanan telah selesai
-                                    </small>
-                                </div>
-                            @elseif($order->status === 'cancelled')
-                                <div class="mt-3">
-                                    <small class="text-danger">
-                                        <i class="fas fa-times-circle"></i> Pesanan dibatalkan
-                                    </small>
-                                </div>
-                            @endif
-
-                            <!-- Feedback Section -->
-                            @if($order->status === 'completed')
-                                <div class="mt-3 pt-3 border-top">
-                                    @if($order->hasFeedback())
-                                        <div class="feedback-display">
-                                            <h6 class="text-success">
-                                                <i class="fas fa-check-circle"></i> Feedback Anda:
-                                            </h6>
-                                            <div class="mb-2">
-                                                <strong>Rating:</strong>
-                                                @for($i = 1; $i <= 5; $i++)
-                                                    <span class="text-warning">{{ $i <= $order->feedback->rating ? '★' : '☆' }}</span>
-                                                @endfor
-                                            </div>
-                                            @if($order->feedback->comment)
-                                                <p class="mb-0"><strong>Komentar:</strong> {{ $order->feedback->comment }}</p>
-                                            @endif
-                                        </div>
-                                    @else
-                                        <div class="feedback-prompt">
-                                            <p class="text-muted mb-2">
-                                                <i class="fas fa-star"></i> Bagaimana pengalaman Anda dengan pesanan ini?
-                                            </p>
-                                            <a href="{{ route('customer.feedback.create', $order) }}" class="btn btn-outline-primary btn-sm">
-                                                <i class="fas fa-comment"></i> Berikan Feedback
-                                            </a>
-                                        </div>
-                                    @endif
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
+            </div>
             @endforeach
         </div>
 
         <!-- Pagination -->
         <div class="d-flex justify-content-center">
-            {{ $orders->links() }}
+            {{ $orders->appends(request()->query())->links() }}
         </div>
     @else
         <div class="text-center py-5">
@@ -149,9 +242,105 @@
                 <i class="fas fa-shopping-bag fa-4x text-muted"></i>
             </div>
             <h4>Belum Ada Pesanan</h4>
-            <p class="text-muted">Anda belum memiliki riwayat pesanan. Mulai berbelanja sekarang!</p>
-            <a href="{{ route('customer.test') }}" class="btn btn-primary btn-lg">Lihat Menu</a>
+            @if($status || $period != '30')
+                <p class="text-muted">Tidak ada pesanan yang sesuai dengan filter yang dipilih.</p>
+                <button onclick="resetFilters()" class="btn btn-primary">Reset Filter</button>
+            @else
+                <p class="text-muted">Anda belum memiliki riwayat pesanan. Mulai berbelanja sekarang!</p>
+                <a href="{{ route('customer.menu') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-coffee me-2"></i>Mulai Berbelanja
+                </a>
+            @endif
         </div>
     @endif
 </div>
+
+<script>
+function applyFilters() {
+    const status = document.getElementById('statusFilter').value;
+    const period = document.getElementById('periodFilter').value;
+    
+    const url = new URL(window.location);
+    
+    if (status) url.searchParams.set('status', status);
+    else url.searchParams.delete('status');
+    
+    if (period) url.searchParams.set('period', period);
+    else url.searchParams.delete('period');
+    
+    window.location.href = url.toString();
+}
+
+function resetFilters() {
+    window.location.href = '{{ route("customer.orders") }}';
+}
+
+// Auto refresh for active orders
+@if($stats['pending_orders'] > 0)
+setInterval(() => {
+    if (document.hidden) return; // Don't refresh if tab is not active
+    
+    fetch('{{ route("customer.orders") }}?ajax=1')
+        .then(response => response.text())
+        .then(html => {
+            // Update only if there are changes in order status
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(html, 'text/html');
+            const currentStatuses = Array.from(document.querySelectorAll('.badge')).map(badge => badge.textContent);
+            const newStatuses = Array.from(newDoc.querySelectorAll('.badge')).map(badge => badge.textContent);
+            
+            if (JSON.stringify(currentStatuses) !== JSON.stringify(newStatuses)) {
+                location.reload();
+            }
+        })
+        .catch(console.error);
+}, 30000); // Check every 30 seconds
+@endif
+</script>
+
+<style>
+.order-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.timeline-sm {
+    font-size: 0.85rem;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    color: #6c757d;
+}
+
+.timeline-item.completed {
+    color: #198754;
+}
+
+.timeline-item i {
+    width: 20px;
+    margin-right: 8px;
+}
+
+.order-items {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .order-items {
+        max-height: none;
+    }
+    
+    .timeline-sm {
+        display: none;
+    }
+}
+</style>
 @endsection

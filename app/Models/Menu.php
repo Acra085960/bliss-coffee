@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory; 
 
 class Menu extends Model
 {
@@ -18,6 +17,7 @@ class Menu extends Model
         'name',         // Nama menu
         'description',  // Deskripsi menu
         'price',        // Harga menu
+        'category',     // Kategori menu
         'image',        // Gambar menu
         'is_available'  // Ketersediaan menu
     ];

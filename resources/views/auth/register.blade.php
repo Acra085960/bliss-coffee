@@ -2,85 +2,81 @@
 <x-guest-layout>
     @push('styles')
         <style>
-            .form-control {
+        .form-container {
+            background: #f3f4f6;
+            color: #222;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+        }
+        .form-label {
+            color: #222;
+        }
+        .form-control {
             background-color: #f5f5dc;
             color: #003200;
             border-radius: 10px;
             padding: 10px;
         }
-
-           .form-control:focus {
+        .form-control:focus {
             border-color: #A9744F;
             box-shadow: 0 0 0 0.2rem rgba(169, 116, 79, 0.25);
         }
-
-            .btn-info {
-                background-color: #A9744F;
-                border: none;
-                color: white;
-                transition: 0.3s ease;
-                border-radius: 10px;
-                padding: 12px;
-                font-size: 16px;
-                font-weight: bold;
-            }
-            .btn-info:hover {
-                background-color: #7B5130;
-            }
-            .link-info {
-                color: #c7b299;
-                text-decoration: none;
-            }
-            .link-info:hover {
-                color: #e0cfa9;
-                text-decoration: underline;
-            }
-            .form-label {
-            color: #222; /* Make label text dark */
+        .btn-info {
+            background-color: #A9744F;
+            border: none;
+            color: white;
+            transition: 0.3s ease;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
         }
-
-            /* Form container with box shadow */
-            .form-container {
-            background: #fff; /* Make the form background white */
-            color: #222;      /* Make the text dark */
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            padding: 40px;
+        .btn-info:hover {
+            background-color: #7B5130;
         }
-            .image-side {
-                position: relative;
-                background: rgba(0, 0, 0, 0.5);
-                overflow: hidden;
-            }
-            .image-side img {
-                object-fit: cover;
-                object-position: center center;
-                width: 100%;
-                height: 100%;
-            }
-            .logo-container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-top: 30px;
-                margin-bottom: 20px;
-            }
-            .logo-container img {
-                margin-right: 15px;
-                height: 70px;
-            }
-            .logo-container h1 {
-                font-size: 2.5rem;
-                color: white;
-                font-weight: bold;
-            }
-            .login-container {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 100%;
-            }
+        .link-info {
+            color: #c7b299;
+            text-decoration: none;
+        }
+        .link-info:hover {
+            color: #e0cfa9;
+            text-decoration: underline;
+        }
+        .image-side {
+            position: relative;
+            background: rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .image-side img {
+            object-fit: cover;
+            object-position: center center;
+            width: 100%;
+            height: 100%;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        .logo-container img {
+            margin-right: 15px;
+            height: 70px;
+        }
+        .logo-container h1 {
+            font-size: 2.5rem;
+            color: white;
+            font-weight: bold;
+        }
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
         </style>
     @endpush
 
@@ -99,14 +95,14 @@
                             <form method="POST" action="{{ route('register') }}" style="width: 23rem;" class="form-container">
                                 @csrf
 
-                                <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color: #222;">Register</h3>
+                                <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color:#222;">Register</h3>
 
                                 <!-- Name -->
                                 <div class="form-outline mb-4">
                                     <input type="text" id="name" name="name"
                                         class="form-control form-control-lg"
                                         value="{{ old('name') }}" required autofocus autocomplete="name"/>
-                                    <label class="form-label" for="name">Name</label>
+                                    <label class="form-label" for="name">Full Name</label>
                                     @error('name')
                                         <div class="text-danger mt-1 small">{{ $message }}</div>
                                     @enderror
@@ -151,11 +147,9 @@
                                 </div>
 
                                 <!-- Login Link -->
-                                @if (Route::has('login'))
-                                    <p>Already have an account?
-                                        <a href="{{ route('login') }}" class="link-info">Login here</a>
-                                    </p>
-                                @endif
+                                <p class="text-center">Already have an account?
+                                    <a href="{{ route('login') }}" class="link-info">Login here</a>
+                                </p>
                             </form>
                         </div>
                     </div>

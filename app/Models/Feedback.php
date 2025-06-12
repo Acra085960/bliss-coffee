@@ -31,4 +31,26 @@ class Feedback extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function response()
+    {
+        return $this->hasOne(FeedbackResponse::class);
+    }
+
+    public function hasResponse()
+    {
+        return $this->response()->exists();
+    }
+
+    public function getRatingStarsAttribute()
+    {
+        return str_repeat('★', $this->rating) . str_repeat('☆', 5 - $this->rating);
+    }
+
+    public function getRatingColorAttribute()
+    {
+        if ($this->rating >= 4) return 'success';
+        if ($this->rating >= 3) return 'warning';
+        return 'danger';
+    }
 }

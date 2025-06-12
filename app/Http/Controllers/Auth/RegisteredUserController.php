@@ -39,12 +39,16 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'pembeli', // Default role for registration is customer
         ]);
+
+        // Assign role using Spatie Permission
+        $user->assignRole('pembeli');
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('customer.dashboard');
     }
 }

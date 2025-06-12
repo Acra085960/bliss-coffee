@@ -1,65 +1,342 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Keranjang Belanja</h1>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Keranjang Belanja</h1>
+            <p class="text-muted">Periksa item yang Anda pilih sebelum checkout</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ route('customer.menu') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Lanjut Belanja
+            </a>
+        </div>
+    </div>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     @endif
 
-    @if(count($cart) > 0)
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(!empty($cart) && count($cart) > 0)
         <div class="row">
-            <div class="col-md-8">
-                @foreach($cart as $item)
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3">
+            <div class="col-lg-8">
+                <!-- Cart Items -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Item dalam Keranjang ({{ count($cart) }} item)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        @foreach($cart as $key => $item)
+                        <div class="cart-item border-bottom p-3" data-key="{{ $key }}">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
                                     @if($item['image'])
-                                        <img src="{{ asset('images/'.$item['image']) }}" class="img-fluid" alt="{{ $item['name'] }}">
+                                        <img src="{{ asset('images/'.$item['image']) }}" 
+                                             alt="{{ $item['name'] }}" 
+                                             class="img-fluid rounded"
+                                             style="width: 80px; height: 80px; object-fit: cover;">
                                     @else
-                                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 100px;">
-                                            <span class="text-muted">No Image</span>
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px;">
+                                            <i class="fas fa-image text-muted"></i>
                                         </div>
                                     @endif
                                 </div>
-                                <div class="col-md-6">
-                                    <h5>{{ $item['name'] }}</h5>
-                                    <p>Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
-                                    <p>Jumlah: {{ $item['quantity'] }}</p>
+                                <div class="col-md-4">
+                                    <h6 class="mb-1">{{ $item['name'] }}</h6>
+                                    @if(isset($item['category']))
+                                        <span class="badge bg-secondary small">{{ $item['category'] }}</span>
+                                    @endif
+                                    @if(isset($item['preferences']) && $item['preferences'])
+                                        <div class="text-muted small mt-1">
+                                            <i class="fas fa-star text-warning"></i> {{ $item['preferences'] }}
+                                        </div>
+                                    @endif
                                 </div>
-                                <div class="col-md-3 text-end">
-                                    <p><strong>Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</strong></p>
-                                    <form action="{{ route('customer.cart.remove') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="menu_id" value="{{ $item['id'] }}">
-                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                    </form>
+                                <div class="col-md-2">
+                                    <div class="text-center">
+                                        <label class="form-label small">Harga</label>
+                                        <div class="fw-bold">Rp {{ number_format($item['price'], 0, ',', '.') }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="quantity-controls">
+                                        <label class="form-label small">Jumlah</label>
+                                        <div class="input-group input-group-sm">
+                                            <button class="btn btn-outline-secondary" type="button" 
+                                                    onclick="updateQuantity('{{ $key }}', -1)">-</button>
+                                            <input type="number" class="form-control text-center quantity-input" 
+                                                   value="{{ $item['quantity'] }}" min="1" max="10"
+                                                   onchange="updateQuantityDirect('{{ $key }}', this.value)">
+                                            <button class="btn btn-outline-secondary" type="button" 
+                                                    onclick="updateQuantity('{{ $key }}', 1)">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="text-center">
+                                        <label class="form-label small">Subtotal</label>
+                                        <div class="fw-bold text-primary item-subtotal">
+                                            Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button class="btn btn-outline-danger btn-sm" 
+                                            onclick="removeFromCart('{{ $key }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                        @endforeach
                     </div>
-                @endforeach
+                </div>
+
+                <!-- Cart Actions -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form action="{{ route('customer.cart.clear') }}" method="POST" 
+                                      onsubmit="return confirm('Apakah Anda yakin ingin mengosongkan keranjang?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="fas fa-trash me-2"></i>Kosongkan Keranjang
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <a href="{{ route('customer.menu') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus me-2"></i>Tambah Item Lain
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
+
+            <div class="col-lg-4">
+                <!-- Order Summary -->
+                <div class="card position-sticky" style="top: 20px;">
                     <div class="card-header">
-                        <h5>Total Belanja</h5>
+                        <h5 class="mb-0">Ringkasan Pesanan</h5>
                     </div>
                     <div class="card-body">
-                        <h4>Rp {{ number_format($total, 0, ',', '.') }}</h4>
-                        <a href="{{ route('customer.checkout') }}" class="btn btn-success w-100 mt-3">Checkout</a>
-                        <a href="{{ route('customer.dashboard') }}" class="btn btn-outline-primary w-100 mt-2">Lanjut Belanja</a>
+                        <div class="order-summary">
+                            @php
+                                $subtotal = 0;
+                                foreach($cart as $item) {
+                                    $subtotal += $item['price'] * $item['quantity'];
+                                }
+                                $tax = 0; // No tax for now
+                                $delivery = 0; // No delivery fee
+                                $total = $subtotal + $tax + $delivery;
+                            @endphp
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal ({{ count($cart) }} item)</span>
+                                <span id="cart-subtotal">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                            </div>
+                            
+                            @if($tax > 0)
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Pajak</span>
+                                <span>Rp {{ number_format($tax, 0, ',', '.') }}</span>
+                            </div>
+                            @endif
+
+                            @if($delivery > 0)
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Biaya Antar</span>
+                                <span>Rp {{ number_format($delivery, 0, ',', '.') }}</span>
+                            </div>
+                            @endif
+
+                            <hr>
+                            
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total</strong>
+                                <strong class="text-primary h5" id="cart-total">
+                                    Rp {{ number_format($total, 0, ',', '.') }}
+                                </strong>
+                            </div>
+
+                            <!-- Promo Code -->
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Kode promo">
+                                    <button class="btn btn-outline-secondary" type="button">Gunakan</button>
+                                </div>
+                                <small class="text-muted">Masukkan kode promo jika ada</small>
+                            </div>
+
+                            <!-- Checkout Button -->
+                            <a href="{{ route('customer.checkout') }}" class="btn btn-primary w-100 btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>Lanjut ke Checkout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Info -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6>Informasi Pesanan</h6>
+                        <ul class="list-unstyled small text-muted mb-0">
+                            <li><i class="fas fa-clock me-2"></i>Estimasi siap: 10-15 menit</li>
+                            <li><i class="fas fa-store me-2"></i>Ambil di toko</li>
+                            <li><i class="fas fa-phone me-2"></i>Hubungi: (021) 123-4567</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     @else
-        <div class="alert alert-info">
+        <!-- Empty Cart -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-shopping-cart fa-4x text-muted"></i>
+            </div>
             <h4>Keranjang Kosong</h4>
-            <p>Belum ada item dalam keranjang. <a href="{{ route('customer.dashboard') }}">Mulai belanja sekarang!</a></p>
+            <p class="text-muted mb-4">Anda belum menambahkan item apapun ke keranjang</p>
+            <a href="{{ route('customer.menu') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-coffee me-2"></i>Mulai Berbelanja
+            </a>
         </div>
     @endif
 </div>
+
+<!-- Remove Item Modal -->
+<div class="modal fade" id="removeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hapus Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menghapus item ini dari keranjang?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="removeForm" method="POST" style="display: inline;">
+                    @csrf
+                    <input type="hidden" name="key" id="removeKey">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateQuantity(key, change) {
+    const input = document.querySelector(`[data-key="${key}"] .quantity-input`);
+    let newValue = parseInt(input.value) + change;
+    
+    if (newValue < 1) newValue = 1;
+    if (newValue > 10) newValue = 10;
+    
+    updateQuantityDirect(key, newValue);
+}
+
+function updateQuantityDirect(key, quantity) {
+    if (quantity < 1 || quantity > 10) return;
+    
+    fetch('{{ route("customer.cart.update") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            key: key,
+            quantity: parseInt(quantity)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Terjadi kesalahan saat mengupdate quantity');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat mengupdate quantity');
+    });
+}
+
+function removeFromCart(key) {
+    document.getElementById('removeKey').value = key;
+    document.getElementById('removeForm').action = '{{ route("customer.cart.remove") }}';
+    new bootstrap.Modal(document.getElementById('removeModal')).show();
+}
+
+// Auto-save quantity changes
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    quantityInputs.forEach(input => {
+        let timeout;
+        input.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                const key = this.closest('.cart-item').dataset.key;
+                updateQuantityDirect(key, this.value);
+            }, 1000);
+        });
+    });
+});
+</script>
+
+<style>
+.cart-item {
+    transition: background-color 0.2s ease;
+}
+
+.cart-item:hover {
+    background-color: #f8f9fa;
+}
+
+.quantity-controls .input-group {
+    width: 120px;
+}
+
+.quantity-input {
+    border-left: none;
+    border-right: none;
+}
+
+.quantity-input:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+.item-subtotal {
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .cart-item .row > div {
+        margin-bottom: 10px;
+    }
+    
+    .quantity-controls {
+        margin-top: 10px;
+    }
+}
+</style>
 @endsection

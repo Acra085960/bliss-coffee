@@ -7,14 +7,34 @@ use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua menu yang tersedia dari database
-        $menus = Menu::where('is_available', true) // Mengambil menu yang tersedia
-                    ->orderBy('name') // Mengurutkan menu berdasarkan nama
-                    ->paginate(12);  // Kita menggunakan Menu::paginate(12) untuk mengambil seluruh menu yang ada dengan paginasi
-
-        // Kirim data menu ke view untuk ditampilkan
-        return view('customer.menu', compact('menus'));  // Mengirim data menu ke view
+        $category = $request->get('category');
+        $search = $request->get('search');
+        
+        $query = Menu::where('is_available', true);
+        
+        if ($category) {
+            $query->where('category', $category);
+        }
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        $menus = $query->orderBy('category')
+                      ->orderBy('name')
+                      ->paginate(12);
+        
+        // Get all available categories for filter
+        $categories = Menu::where('is_available', true)
+                         ->distinct()
+                         ->pluck('category')
+                         ->sort();
+        
+        return view('customer.menu', compact('menus', 'categories', 'category', 'search'));
     }
 }

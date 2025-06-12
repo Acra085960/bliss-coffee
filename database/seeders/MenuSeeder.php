@@ -12,58 +12,127 @@ class MenuSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-        // Menambahkan data dummy ke tabel menus
-        Menu::create([
-            'name' => 'Espresso',
-            'description' => 'Kopi espresso original dengan cita rasa yang kuat',
-            'price' => 15000,
-            'is_available' => true,
-        ]);
-        Menu::create([
-            'name' => 'Cappuccino',
-            'description' => 'Espresso dengan steamed milk dan foam yang lembut',
-            'price' => 25000,
-            'is_available' => true,
-        ]);
-        Menu::create([
-            'name' => 'Latte',
-            'description' => 'Espresso dengan steamed milk yang creamy',
-            'price' => 28000,
-            'is_available' => true,
-        ]);
-        Menu::create([
-            'name' => 'Americano',
-            'description' => 'Espresso dengan air panas, rasa kopi yang bold',
-            'price' => 18000,
-            'is_available' => true,
-        ]);
-        Menu::create([
-            'name' => 'Mocha',
-            'description' => 'Espresso dengan cokelat dan steamed milk',
-            'price' => 32000,
-            'is_available' => true,
-        ]);
-        Menu::create([
-            'name' => 'Frappuccino',
-            'description' => 'Minuman kopi dingin dengan es dan whipped cream',
-            'price' => 35000,
-            'is_available' => true,
-        ]);
-        Menu::create([
-            'name' => 'Macchiato',
-            'description' => 'Espresso dengan sedikit steamed milk',
-            'price' => 22000,
-            'is_available' => true,
-        ]);
-        Menu::create([
-            'name' => 'Affogato',
-            'description' => 'Espresso shot dengan vanilla ice cream',
-            'price' => 30000,
-            'is_available' => true,
-        ]);
+        $menus = [
+            // Kopi Panas
+            [
+                'name' => 'Espresso',
+                'description' => 'Kopi espresso murni dengan rasa yang kuat dan aroma yang khas',
+                'price' => 15000,
+                'category' => 'Kopi Panas',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Americano',
+                'description' => 'Espresso dengan air panas, memberikan rasa kopi yang bold namun ringan',
+                'price' => 18000,
+                'category' => 'Kopi Panas',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Cappuccino',
+                'description' => 'Espresso dengan steamed milk dan foam yang lembut, balance sempurna',
+                'price' => 25000,
+                'category' => 'Kopi Panas',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Caffe Latte',
+                'description' => 'Espresso dengan steamed milk yang creamy dan lembut',
+                'price' => 28000,
+                'category' => 'Kopi Panas',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Mocha',
+                'description' => 'Perpaduan sempurna espresso, cokelat, dan steamed milk',
+                'price' => 32000,
+                'category' => 'Kopi Panas',
+                'is_available' => true,
+            ],
+            
+            // Kopi Dingin
+            [
+                'name' => 'Iced Americano',
+                'description' => 'Espresso dengan air dingin dan es batu, menyegarkan dan bold',
+                'price' => 20000,
+                'category' => 'Kopi Dingin',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Iced Latte',
+                'description' => 'Espresso dengan cold milk dan es, creamy dan segar',
+                'price' => 30000,
+                'category' => 'Kopi Dingin',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Frappuccino',
+                'description' => 'Minuman kopi dingin blended dengan es dan whipped cream',
+                'price' => 35000,
+                'category' => 'Kopi Dingin',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Cold Brew',
+                'description' => 'Kopi yang diseduh dingin selama 12 jam, smooth dan less acidic',
+                'price' => 25000,
+                'category' => 'Kopi Dingin',
+                'is_available' => true,
+            ],
+            
+            // Non-Kopi
+            [
+                'name' => 'Hot Chocolate',
+                'description' => 'Cokelat panas premium dengan whipped cream dan marshmallow',
+                'price' => 22000,
+                'category' => 'Non-Kopi',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Green Tea Latte',
+                'description' => 'Matcha premium dengan steamed milk, creamy dan healthy',
+                'price' => 26000,
+                'category' => 'Non-Kopi',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Chai Tea Latte',
+                'description' => 'Teh rempah India dengan steamed milk dan madu',
+                'price' => 24000,
+                'category' => 'Non-Kopi',
+                'is_available' => true,
+            ],
+            
+            // Makanan
+            [
+                'name' => 'Croissant Butter',
+                'description' => 'Croissant segar dengan butter premium, renyah dan buttery',
+                'price' => 18000,
+                'category' => 'Makanan',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Sandwich Club',
+                'description' => 'Sandwich dengan ayam, bacon, lettuce, dan tomato',
+                'price' => 35000,
+                'category' => 'Makanan',
+                'is_available' => true,
+            ],
+            [
+                'name' => 'Muffin Blueberry',
+                'description' => 'Muffin lembut dengan blueberry segar, perfect untuk snacking',
+                'price' => 15000,
+                'category' => 'Makanan',
+                'is_available' => true,
+            ],
+        ];
 
-        // Anda bisa menambahkan lebih banyak data menu sesuai kebutuhan
+        foreach ($menus as $menu) {
+            Menu::create($menu);
+        }
+
+        $this->command->info('Created ' . count($menus) . ' menu items across multiple categories');
     }
 }
