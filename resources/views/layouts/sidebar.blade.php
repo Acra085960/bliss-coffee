@@ -50,6 +50,13 @@
                 </li>
 
             </ul>
+             <hr style="margin: 1.5rem 0; border-top: 1px solid #444;">
+    <form method="POST" action="{{ route('logout') }}" style="padding: 0 1rem;">
+        @csrf
+        <button type="submit" class="btn btn-danger w-100" style="margin-top: 10px;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </form>
         </nav>
     </div>
 </aside>

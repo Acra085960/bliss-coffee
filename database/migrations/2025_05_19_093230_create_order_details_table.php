@@ -10,12 +10,16 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('order_details', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('order_details', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('order_id')->constrained()->onDelete('cascade');
+        $table->foreignId('menu_id')->constrained()->onDelete('cascade');
+        $table->integer('quantity')->default(1);
+        $table->integer('price'); // harga satuan saat order
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

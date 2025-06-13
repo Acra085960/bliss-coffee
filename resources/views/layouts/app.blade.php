@@ -15,7 +15,13 @@
 <div class="wrapper">
 
   @include('layouts.navbar')
-  @include('layouts.sidebar')
+  @auth
+    @if(auth()->user()->role === 'manajer')
+        @include('layouts.manager.sidebar')
+    @else
+        @include('layouts.sidebar')
+    @endif
+@endauth
 
   <div class="content-wrapper">
     <div class="content-header">

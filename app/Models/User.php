@@ -47,4 +47,18 @@ Class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+    public function menus()
+{
+    return $this->hasMany(\App\Models\Menu::class, 'user_id');
+}
+
+public function orders()
+{
+    return $this->hasMany(\App\Models\Order::class);
+}
+
+public function feedbacks()
+{
+    return $this->hasMany(\App\Models\Feedback::class);
+}
 }

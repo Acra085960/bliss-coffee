@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         'email' => 'owner@bliss.com',
         'password' => Hash::make('password'),
         'role' => 'owner',
+        'email_verified_at' => now(), // <-- tambahkan ini
     ]);
 
     // Manajer
@@ -29,6 +30,7 @@ class DatabaseSeeder extends Seeder
         'email' => 'manajer@bliss.com',
         'password' => Hash::make('password'),
         'role' => 'manajer',
+        'email_verified_at' => now(), // <-- tambahkan ini
     ]);
 
     // Penjual
@@ -37,6 +39,7 @@ class DatabaseSeeder extends Seeder
         'email' => 'penjual@bliss.com',
         'password' => Hash::make('password'),
         'role' => 'penjual',
+        'email_verified_at' => now(), // <-- tambahkan ini
     ]);
 
     // Pembeli
@@ -45,6 +48,7 @@ class DatabaseSeeder extends Seeder
         'email' => 'pembeli@bliss.com',
         'password' => Hash::make('password'),
         'role' => 'pembeli',
+        'email_verified_at' => now(), // <-- tambahkan ini
     ]);
 }
 }

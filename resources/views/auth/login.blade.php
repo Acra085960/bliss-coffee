@@ -1,23 +1,14 @@
 <x-guest-layout>
     @push('styles')
         <style>
-        .form-container {
-            background: #f3f4f6; /* Light grey background */
-            color: #222;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            padding: 40px;
-        }
-        .form-label {
-            color: #222;
-        }
-        .form-control {
+            .form-control {
             background-color: #f5f5dc;
             color: #003200;
             border-radius: 10px;
             padding: 10px;
         }
-        .form-control:focus {
+
+           .form-control:focus {
             border-color: #A9744F;
             box-shadow: 0 0 0 0.2rem rgba(169, 116, 79, 0.25);
         }
@@ -46,6 +37,19 @@
                 color: #e0cfa9;
                 text-decoration: underline;
             }
+
+            .form-label {
+            color: #222; /* Make label text dark */
+        }
+
+            /* Form container with box shadow */
+            .form-container {
+            background: #fff; /* Make the form background white */
+            color: #222;      /* Make the text dark */
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+        }
 
             /* Darker overlay for the image side */
             .image-side {
@@ -107,7 +111,14 @@
                         <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
                             <form method="POST" action="{{ route('login') }}" style="width: 23rem;" class="form-container">
                                 @csrf
-
+                                @if (session('status'))
+    <div class="alert alert-danger">{{ session('status') }}</div>
+@endif
+                                @if (session('error') == 'email-not-verified')
+                                    <div class="alert alert-warning mb-3" style="color:#b45309; background:#fef3c7; border-radius:8px; padding:10px;">
+                                        Email Anda belum diverifikasi. Silakan cek email Anda dan klik link verifikasi.
+                                    </div>
+                                @endif
                                 <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color:#222;">Log in</h3>
 
                                 <!-- Email -->

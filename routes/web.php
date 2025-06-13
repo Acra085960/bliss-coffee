@@ -24,6 +24,11 @@ use App\Http\Controllers\Owner\EmployeeController;
 
 // Manager Controllers
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
+use App\Http\Controllers\Manager\SalesAnalysisController;
+use App\Http\Controllers\Manager\StockController;
+use App\Http\Controllers\Manager\SellerPerformanceController;
+use App\Http\Controllers\Manager\TopMenusController;
+use App\Http\Controllers\Manager\SalesExportController;
 
 // Middleware
 use App\Http\Middleware\RoleMiddleware;
@@ -33,11 +38,6 @@ use App\Http\Middleware\CustomAuthMiddleware;
 Route::get('/', function () {
     return view('auth.login');
 });
-
-// Route test middleware
-Route::get('/test-role', function () {
-    return 'Role middleware works!';
-})->middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':penjual']);
 
 // Auth routes (from Breeze)
 require __DIR__.'/auth.php';
@@ -107,7 +107,13 @@ Route::middleware([CustomAuthMiddleware::class, RoleMiddleware::class . ':manaje
     ->name('manajer.')
     ->group(function () {
         Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
-        // Tambahkan route lainnya untuk manajer di sini
+        Route::get('/sales/analysis', [SalesAnalysisController::class, 'index'])->name('sales.analysis');
+        Route::get('/stocks', [StockController::class, 'index'])->name('stocks.index');
+        Route::get('/sellers/performance', [SellerPerformanceController::class, 'index'])->name('sellers.performance');
+        Route::get('/topmenus', [TopMenusController::class, 'index'])->name('topmenus');
+        Route::get('/sales/export', [SalesExportController::class, 'index'])->name('sales.export');
+                Route::get('/sales/export/csv', [SalesExportController::class, 'exportCsv'])->name('sales.export.csv');
+        Route::get('/sales/export/pdf', [SalesExportController::class, 'exportPdf'])->name('sales.export.pdf');
     });
 
 // ===========================================
