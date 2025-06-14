@@ -8,6 +8,27 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next, string $role): Response
+    {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $user = auth()->user();
+        
+        // Ensure user has role assigned in Spatie Permission
+        if (!$user->hasAnyRole(['pembeli', 'penjual', 'manajer', 'owner'])) {
+            $user->assignRole($user->role);
+        }
+
+        if (!$user->hasRole($role)) {
+            abort(403, 'Unauthorized access');
+        }
     public function handle(Request $request, Closure $next, ...$roles)
     {
         // Ensure the user is authenticated

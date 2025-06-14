@@ -12,8 +12,8 @@ class DashboardController extends Controller
     public function index()
     {
         $totalOrders = Order::count();
-        $activeMenus = Menu::where('is_active', true)->count();
-        $lowStocks = Stock::where('quantity', '<', 10)->count(); // contoh threshold
+        $activeMenus = Menu::where('is_available', true)->count();
+        $lowStocks = Stock::where('current_stock', '<', 10)->count(); // contoh threshold
 
         $latestOrders = Order::latest()->take(5)->get();
         $topMenus = Menu::withCount('orders')->orderByDesc('orders_count')->take(5)->get();

@@ -2,43 +2,56 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory; 
 
 class Menu extends Model
 {
     use HasFactory;
 
+    protected $table = 'menus';
+
     protected $fillable = [
         'name',
+        'description',
         'price',
-        'stock',
-        'description', // add this if you use description
+        'category',
+        'image',
+        'is_available'
     ];
 
+    protected $casts = [
+        'price' => 'decimal:2',
+        'is_available' => 'boolean',
+    ];
+
+    // Relasi ke orders (pivot)
     public function orders()
-{
-    return $this->belongsToMany(\App\Models\Order::class, 'order_menu', 'menu_id', 'order_id');
-}
-
-    public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $this->belongsToMany(\App\Models\Order::class, 'order_menu', 'menu_id', 'order_id');
     }
 
-    public function scopeLowStock($query, $threshold = 10)
+    // Relasi ke order details
+    public function orderDetails()
     {
-        return $query->where('stock', '<', $threshold);
+        return $this->hasMany(\App\Models\OrderDetail::class, 'menu_id');
     }
 
+    // Relasi ke penjual
     public function seller()
     {
         return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
-    public function orderDetails()
-{
-    return $this->hasMany(\App\Models\OrderDetail::class, 'menu_id');
-}
-}
+    // Scope: hanya menu yang tersedia
+    public function scopeActive($query)
+    {
+        return $query->where('is_available', true);
+    }
 
+    // Scope: stok rendah
+    public function scopeLowStock($query, $threshold = 10)
+    {
+        return $query->where('stock', '<', $threshold);
+    }
+}

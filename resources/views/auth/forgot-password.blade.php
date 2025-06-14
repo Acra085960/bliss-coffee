@@ -5,75 +5,59 @@
     <meta charset="UTF-8">
     <title>Lupa Password</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            background: linear-gradient(180deg, #003200 0%, #004d26 70%);
-            min-height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        .forgot-container {
-            max-width: 380px;
-            margin: 60px auto;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            padding: 32px 28px 24px 28px;
-            text-align: center;
-        }
-        .forgot-title {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #222;
-            margin-bottom: 12px;
-        }
-        .forgot-desc {
-            color: #333;
-            font-size: 1rem;
-            margin-bottom: 18px;
-        }
-        .forgot-btn {
-            width: 100%;
-            padding: 10px 0;
-            border-radius: 8px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 600;
-            background: #A9744F;
-            color: #fff;
-            margin-top: 16px;
-            cursor: pointer;
-        }
-        .forgot-btn:hover {
-            background: #7B5130;
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
+    @stack('styles')
 </head>
 <body>
-    <div class="forgot-container">
-        <div class="forgot-title">Lupa Password</div>
-        <div class="forgot-desc">
-            Masukkan email Anda dan kami akan mengirimkan link untuk reset password.
-        </div>
+    <x-guest-layout>
+        <section class="vh-100">
+            <div class="container-fluid">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-6">
+                        <div class="form-container">
+                            <div class="text-center mb-4">
+                                <img src="{{ asset('images/bliss_logo.png') }}" alt="Logo" style="height: 60px;">
+                                <h1 class="h3 mt-3">Forgot Password?</h1>
+                                <p class="text-muted">Enter your email address and we'll send you a password reset link.</p>
+                            </div>
 
-        @if (session('status'))
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ session('status') }}
+                            @if (session('status'))
+                                <div class="alert alert-success mb-4">
+                                    {{ session('status') }}
+                                </div>
+                            @endif
+
+                            <form method="POST" action="{{ route('password.email') }}">
+                                @csrf
+
+                                <!-- Email Address -->
+                                <div class="form-outline mb-4">
+                                    <input type="email" id="email" name="email"
+                                        class="form-control form-control-lg"
+                                        value="{{ old('email') }}" required autofocus />
+                                    <label class="form-label" for="email">Email address</label>
+                                    @error('email')
+                                        <div class="text-danger mt-1 small">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ route('login') }}" class="link-info">
+                                        ← Back to Login
+                                    </a>
+                                    <button class="btn btn-info" type="submit">
+                                        Send Reset Link
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-        @endif
+        </section>
+    </x-guest-layout>
 
-        <form method="POST" action="{{ route('password.email') }}">
-            @csrf
-            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                placeholder="Email" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:12px;">
-            @error('email')
-                <div class="text-danger" style="color:#b91c1c;">{{ $message }}</div>
-            @enderror
-
-            <button type="submit" class="forgot-btn">
-                Kirim Link Reset Password
-            </button>
-        </form>
-    </div>
+    @livewireScripts
 </body>
 </html>

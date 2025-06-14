@@ -6,15 +6,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Traits\HasRoles;
 
-Class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    /** 
+     * Menggunakan trait HasFactory dan Notifiable serta HasRoles untuk manajemen role.
+     */
+    use HasFactory, Notifiable, HasRoles;
 
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang bisa di-assign secara massal.
      *
      * @var list<string>
      */
@@ -22,11 +25,11 @@ Class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'role',
+        'role', // Menambahkan 'role' ke dalam fillable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang perlu disembunyikan saat serialisasi.
      *
      * @var list<string>
      */
@@ -36,15 +39,15 @@ Class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Atribut yang akan di-cast ke tipe data lain.
      *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at' => 'datetime', // Menentukan casting untuk email_verified_at
+            'password' => 'hashed',           // Menandakan password harus di-hash
         ];
     }
     public function menus()
