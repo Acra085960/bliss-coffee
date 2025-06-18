@@ -29,7 +29,7 @@ class DashboardController extends Controller
             case 'penjual':
                 return redirect()->route('penjual.dashboard');
             case 'manajer':
-                return redirect()->route('manajer.dashboard');
+                return redirect()->route('manager.dashboard');
             case 'owner':
                 return redirect()->route('owner.dashboard');
             case 'pembeli':

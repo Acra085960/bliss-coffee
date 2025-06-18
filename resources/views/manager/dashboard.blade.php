@@ -1,28 +1,223 @@
-{{-- filepath: resources/views/manager/dashboard.blade.php --}}
+{{-- filepath: /home/acra/bliss/resources/views/manager/dashboard.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6">
-    <h1 class="text-2xl font-semibold mb-4">Dashboard Manager</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">{{ __('Manager Dashboard') }}</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card text-white bg-primary mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Total Penjualan Hari Ini</h5>
+                                    <p class="card-text">Rp {{ number_format($totalSalesToday, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-success mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Total Pesanan Hari Ini</h5>
+                                    <p class="card-text">{{ $totalOrdersToday }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-danger mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Menu Stok Habis</h5>
+                                    <p class="card-text">{{ $outOfStockMenus }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-warning mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Bahan Hampir Habis</h5>
+                                    <p class="card-text">{{ $lowStockIngredients }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <x-dashboard-card title="Total Pesanan" :value="$totalOrders" icon="shopping-cart" />
-        <x-dashboard-card title="Menu Aktif" :value="$activeMenus" icon="coffee" />
-        <x-dashboard-card title="Stok Hampir Habis" :value="$lowStocks" icon="alert-circle" />
-    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Penjualan 7 Hari Terakhir</div>
+                                <div class="card-body">
+                                    <canvas id="sales7Chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Menu Terlaris Minggu Ini</div>
+                                <div class="card-body">
+                                    <canvas id="topMenusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="mt-6">
-        <h2 class="text-lg font-medium mb-2">Pesanan Terbaru</h2>
-        <x-order-table :orders="$latestOrders" />
-    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Tabel Stok Menu</div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nama Menu</th>
+                                                    <th>Stok Tersisa</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($menus as $menu)
+                                                <tr>
+                                                    <td>{{ $menu->name }}</td>
+                                                    <td>{{ $menu->stock->current_stock ?? 0 }}</td>
+                                                    <td>
+                                                        @if(($menu->stock->current_stock ?? 0) > 0)
+                                                            <span class="badge bg-success">Tersedia</span>
+                                                        @else
+                                                            <span class="badge bg-danger">Habis</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Tabel Bahan Baku</div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nama Bahan</th>
+                                                    <th>Jumlah Tersisa</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($ingredients as $item)
+                                                <tr>
+                                                    <td>{{ $item->name }}</td>
+                                                    <td>{{ $item->current_stock }}</td>
+                                                    <td>
+                                                        @if($item->current_stock == 0)
+                                                            <span class="badge bg-danger">Habis</span>
+                                                        @elseif($item->current_stock < $item->minimum_stock)
+                                                            <span class="badge bg-warning text-dark">Hampir habis</span>
+                                                        @else
+                                                            <span class="badge bg-success">Aman</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="mt-6">
-        <h2 class="text-lg font-medium mb-2">Menu Terlaris</h2>
-        <ul>
-            @foreach($topMenus as $menu)
-                <li>{{ $menu->name }} ({{ $menu->orders_count }} pesanan)</li>
-            @endforeach
-        </ul>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Kinerja Penjual Minggu Ini</div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nama Penjual</th>
+                                                    <th>Jumlah Pesanan Selesai</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($sellerPerformance as $seller)
+                                                <tr>
+                                                    <td>{{ $seller->name }}</td>
+                                                    <td>{{ $seller->orders_count }}</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-header">Total Pendapatan Minggu Ini</div>
+                                <div class="card-body">
+                                    <p class="h4 text-success">Rp {{ number_format($totalRevenueWeek, 0, ',', '.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-header">Rata-rata Order per Hari (Minggu Ini)</div>
+                                <div class="card-body">
+                                    <p class="h4 text-primary">{{ number_format($avgOrderPerDay, 2) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const sales7Days = @json($sales7Days);
+const dates = @json($dates->map(fn($d) => \Carbon\Carbon::parse($d)->format('d M')));
+const topMenus = @json($topMenus->pluck('name'));
+const topMenusCount = @json($topMenus->pluck('orders_count'));
+
+new Chart(document.getElementById('sales7Chart'), {
+    type: 'bar',
+    data: {
+        labels: dates,
+        datasets: [{
+            label: 'Penjualan (Rp)',
+            data: sales7Days,
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('topMenusChart'), {
+    type: 'pie',
+    data: {
+        labels: topMenus,
+        datasets: [{
+            label: 'Menu Terlaris',
+            data: topMenusCount,
+            backgroundColor: [
+                '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF'
+            ]
+        }]
+    },
+    options: { responsive: true }
+});
+</script>
+@endpush

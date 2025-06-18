@@ -102,36 +102,45 @@
                                     <a class="nav-link {{ request()->routeIs('penjual.feedback.*') ? 'active' : '' }}" href="{{ route('penjual.feedback.index') }}">
                                         <i class="fas fa-comments me-2"></i> Feedback
                                     </a>
-                                @elseif(Auth::user()->role === 'manajer')
-    <a class="nav-link {{ request()->routeIs('manajer.dashboard') ? 'active' : '' }}" href="{{ route('manajer.dashboard') }}">
-        <i class="fas fa-home me-2"></i> Dashboard
-    </a>
-    <a class="nav-link {{ request()->routeIs('manajer.sales.analysis') ? 'active' : '' }}" href="{{ route('manajer.sales.analysis') }}">
-        <i class="fas fa-chart-line me-2"></i> Analisis Penjualan
-    </a>
-    <a class="nav-link {{ request()->routeIs('manajer.stocks.index') ? 'active' : '' }}" href="{{ route('manajer.stocks.index') }}">
-        <i class="fas fa-boxes me-2"></i> Stok & Sisa Bahan
-    </a>
-    <a class="nav-link {{ request()->routeIs('manajer.sellers.performance') ? 'active' : '' }}" href="{{ route('manajer.sellers.performance') }}">
-        <i class="fas fa-users me-2"></i> Kinerja Penjual
-    </a>
-    <a class="nav-link {{ request()->routeIs('manajer.topmenus') ? 'active' : '' }}" href="{{ route('manajer.topmenus') }}">
-        <i class="fas fa-star me-2"></i> Menu Terlaris
-    </a>
-    <a class="nav-link {{ request()->routeIs('manajer.sales.export') ? 'active' : '' }}" href="{{ route('manajer.sales.export') }}">
-        <i class="fas fa-file-export me-2"></i> Ekspor Data Penjualan
-    </a>
-                                @elseif(Auth::user()->role === 'owner')
-                                    <a class="nav-link {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}">
-                                        <i class="fas fa-home me-2"></i> Dashboard
-                                    </a>
-                                    <a class="nav-link {{ request()->routeIs('owner.employees') ? 'active' : '' }}" href="{{ route('owner.employees') }}">
-                                        <i class="fas fa-users me-2"></i> Karyawan
-                                    </a>
-                                    <a class="nav-link {{ request()->routeIs('owner.reports') ? 'active' : '' }}" href="{{ route('owner.reports') }}">
-                                        <i class="fas fa-chart-bar me-2"></i> Laporan
-                                    </a>
-                                @endif
+                               @elseif(Auth::user()->role === 'owner')
+        <a class="nav-link {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}">
+            <i class="fas fa-home me-2"></i> Dashboard
+        </a>
+        <a class="nav-link {{ request()->routeIs('owner.employees') ? 'active' : '' }}" href="{{ route('owner.employees') }}">
+            <i class="fas fa-users me-2"></i> Karyawan & Manajer
+        </a>
+        <a class="nav-link {{ request()->routeIs('owner.reports') ? 'active' : '' }}" href="{{ route('owner.reports') }}">
+            <i class="fas fa-chart-bar me-2"></i> Laporan Penjualan
+        </a>
+        <a class="nav-link {{ request()->routeIs('owner.menus') ? 'active' : '' }}" href="{{ route('owner.menus') }}">
+            <i class="fas fa-utensils me-2"></i> Kelola Harga Menu
+        </a>
+        <a class="nav-link {{ request()->routeIs('owner.feedback') ? 'active' : '' }}" href="{{ route('owner.feedback') }}">
+            <i class="fas fa-comments me-2"></i> Feedback Konsumen
+        </a>
+        <a class="nav-link {{ request()->routeIs('owner.outlets') ? 'active' : '' }}" href="{{ route('owner.outlets') }}">
+            <i class="fas fa-store me-2"></i> Monitoring Outlet/Gerobak
+        </a>
+    @elseif(Auth::user()->role === 'manajer')
+        <a class="nav-link {{ request()->routeIs('manager.dashboard') ? 'active' : '' }}" href="{{ route('manager.dashboard') }}">
+            <i class="fas fa-home me-2"></i> Dashboard
+        </a>
+        <a class="nav-link {{ request()->routeIs('manager.sales.analysis') ? 'active' : '' }}" href="{{ route('manager.sales.analysis') }}">
+            <i class="fas fa-chart-line me-2"></i> Analisis Penjualan
+        </a>
+        <a class="nav-link {{ request()->routeIs('manager.stocks.index') ? 'active' : '' }}" href="{{ route('manager.stocks.index') }}">
+            <i class="fas fa-boxes me-2"></i> Stok
+        </a>
+        <a class="nav-link {{ request()->routeIs('manager.sellers.performance') ? 'active' : '' }}" href="{{ route('manager.sellers.performance') }}">
+            <i class="fas fa-users me-2"></i> Kinerja Penjual
+        </a>
+        <a class="nav-link {{ request()->routeIs('manager.topmenus') ? 'active' : '' }}" href="{{ route('manager.topmenus') }}">
+            <i class="fas fa-star me-2"></i> Menu Terlaris
+        </a>
+        <a class="nav-link {{ request()->routeIs('manager.sales.export') ? 'active' : '' }}" href="{{ route('manager.sales.export') }}">
+            <i class="fas fa-file-export me-2"></i> Ekspor Data Penjualan
+        </a>
+    @endif
 
                                 <!-- Profile -->
                                 <a class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" href="{{ route('profile.edit') }}">

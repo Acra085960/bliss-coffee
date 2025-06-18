@@ -10,16 +10,61 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     public function index()
-    {
-        $totalOrders = Order::count();
-        $activeMenus = Menu::where('is_available', true)->count();
-        $lowStocks = Stock::where('current_stock', '<', 10)->count(); // contoh threshold
+{
+    // Hari ini
+    $today = now()->toDateString();
 
-        $latestOrders = Order::latest()->take(5)->get();
-        $topMenus = Menu::withCount('orders')->orderByDesc('orders_count')->take(5)->get();
+    // Total Penjualan Hari Ini (status selesai)
+    $totalSalesToday = \App\Models\Order::whereDate('created_at', $today)
+        ->where('status', 'selesai')
+        ->sum('total_price');
 
-        return view('manager.dashboard', compact(
-            'totalOrders', 'activeMenus', 'lowStocks', 'latestOrders', 'topMenus'
-        ));
-    }
+    // Total Pesanan Hari Ini (semua status)
+    $totalOrdersToday = \App\Models\Order::whereDate('created_at', $today)->count();
+
+    // Menu stok habis
+    $outOfStockMenus = \App\Models\Stock::where('current_stock', 0)->count();
+
+    // Bahan hampir habis (< 5)
+    $lowStockIngredients = \App\Models\Stock::where('current_stock', '<', 5)->count();
+
+    // Penjualan 7 hari terakhir
+    $dates = collect(range(0, 6))->map(fn($i) => now()->subDays(6 - $i)->toDateString());
+    $sales7Days = $dates->map(fn($date) =>
+        \App\Models\Order::whereDate('created_at', $date)->where('status', 'selesai')->sum('total_price')
+    );
+    $orders7Days = $dates->map(fn($date) =>
+        \App\Models\Order::whereDate('created_at', $date)->count()
+    );
+
+    // Menu terlaris minggu ini (pie chart)
+    $startOfWeek = now()->startOfWeek();
+    $topMenus = \App\Models\Menu::withCount(['orders' => function($q) use ($startOfWeek) {
+    $q->where('orders.created_at', '>=', $startOfWeek);
+}])->orderByDesc('orders_count')->take(5)->get();
+
+    // Tabel stok menu
+    $menus = \App\Models\Menu::all();
+
+    // Tabel bahan baku
+    $ingredients = \App\Models\Stock::all();
+
+    // Kinerja penjual minggu ini
+    $sellerPerformance = \App\Models\User::where('role', 'penjual')
+        ->withCount(['orders' => function($q) use ($startOfWeek) {
+            $q->where('created_at', '>=', $startOfWeek)->where('status', 'selesai');
+        }])->get();
+
+    // Laporan singkat
+    $totalRevenueWeek = \App\Models\Order::where('created_at', '>=', $startOfWeek)
+        ->where('status', 'selesai')->sum('total_price');
+    $avgOrderPerDay = \App\Models\Order::where('created_at', '>=', $startOfWeek)
+        ->count() / now()->diffInDays($startOfWeek->copy()->addWeek());
+
+    return view('manager.dashboard', compact(
+        'totalSalesToday', 'totalOrdersToday', 'outOfStockMenus', 'lowStockIngredients',
+        'dates', 'sales7Days', 'orders7Days', 'topMenus', 'menus', 'ingredients',
+        'sellerPerformance', 'totalRevenueWeek', 'avgOrderPerDay'
+    ));
+}
 }

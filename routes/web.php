@@ -22,6 +22,10 @@ use App\Http\Controllers\Customer\DashboardController as CustomerDashboardContro
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboardController;
 use App\Http\Controllers\Owner\ReportController;
 use App\Http\Controllers\Owner\EmployeeController;
+use App\Http\Controllers\Owner\MenuController as OwnerMenuController;
+use App\Http\Controllers\Owner\FeedbackController as OwnerFeedbackController;
+use App\Http\Controllers\Owner\OutletController as OwnerOutletController;
+
 
 // Manager Controllers
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
@@ -96,16 +100,34 @@ Route::middleware(['auth', 'role:pembeli', 'verified'])->prefix('customer')->nam
 // ===========================================
 Route::middleware(['auth', 'role:owner', 'verified'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
+    // Kelola Pegawai/Manajer
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
+    Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+    Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+    Route::get('/employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
+    Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+    Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+    // Laporan Penjualan
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    // ===== Tambahkan route export di bawah ini =====
+    Route::get('/reports/export/{type}', [ReportController::class, 'export'])->name('reports.export');
+    // ==============================================
+    // Kelola Harga Menu
+    Route::get('/menus', [OwnerMenuController::class, 'index'])->name('menus');
+    Route::get('/menus/{menu}/edit', [OwnerMenuController::class, 'edit'])->name('menus.edit');
+    Route::put('/menus/{menu}', [OwnerMenuController::class, 'update'])->name('menus.update');
+    // Feedback Konsumen
+    Route::get('/feedback', [OwnerFeedbackController::class, 'index'])->name('feedback');
+    // Monitoring Outlet/Gerobak
+    Route::get('/outlets', [OwnerOutletController::class, 'index'])->name('outlets');
 });
 
 // ===========================================
 // Role: Manajer (Manager)
 // ===========================================
 Route::middleware(['auth', 'role:manajer', 'verified'])
-    ->prefix('manajer')
-    ->name('manajer.')
+    ->prefix('manager')
+    ->name('manager.')
     ->group(function () {
         Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
         Route::get('/sales/analysis', [SalesAnalysisController::class, 'index'])->name('sales.analysis');
@@ -113,7 +135,7 @@ Route::middleware(['auth', 'role:manajer', 'verified'])
         Route::get('/sellers/performance', [SellerPerformanceController::class, 'index'])->name('sellers.performance');
         Route::get('/topmenus', [TopMenusController::class, 'index'])->name('topmenus');
         Route::get('/sales/export', [SalesExportController::class, 'index'])->name('sales.export');
-                Route::get('/sales/export/csv', [SalesExportController::class, 'exportCsv'])->name('sales.export.csv');
+        Route::get('/sales/export/csv', [SalesExportController::class, 'exportCsv'])->name('sales.export.csv');
         Route::get('/sales/export/pdf', [SalesExportController::class, 'exportPdf'])->name('sales.export.pdf');
     });
 

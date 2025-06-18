@@ -8,7 +8,7 @@
     <div class="card mb-4">
         <div class="card-header font-bold">Filter Data Penjualan</div>
         <div class="card-body">
-            <form method="GET" action="{{ route('manajer.sales.export') }}" class="row g-3">
+            <form method="GET" action="{{ route('manager.sales.export') }}" class="row g-3">
                 <div class="col-md-4">
                     <label for="from" class="form-label">Dari Tanggal</label>
                     <input type="date" name="from" id="from" class="form-control" value="{{ request('from') }}">
@@ -19,10 +19,10 @@
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">Tampilkan</button>
-                    <a href="{{ route('manajer.sales.export.csv', request()->only(['from','to'])) }}" class="btn btn-success me-2">
+                    <a href="{{ route('manager.sales.export.csv', request()->only(['from','to'])) }}" class="btn btn-success me-2">
                         <i class="fas fa-file-csv"></i> Ekspor CSV
                     </a>
-                    <a href="{{ route('manajer.sales.export.pdf', request()->only(['from','to'])) }}" class="btn btn-danger">
+                    <a href="{{ route('manager.sales.export.pdf', request()->only(['from','to'])) }}" class="btn btn-danger">
                         <i class="fas fa-file-pdf"></i> Ekspor PDF
                     </a>
                 </div>
