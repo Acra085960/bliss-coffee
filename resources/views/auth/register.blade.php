@@ -1,166 +1,170 @@
 {{-- filepath: /home/acra/bliss/resources/views/auth/register.blade.php --}}
 <x-guest-layout>
-    @push('styles')
-        <style>
-        .form-container {
-            background: #f3f4f6;
-            color: #222;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            padding: 40px;
-        }
-        .form-label {
-            color: #222;
-        }
-        .form-control {
-            background-color: #f5f5dc;
-            color: #003200;
-            border-radius: 10px;
-            padding: 10px;
-        }
-        .form-control:focus {
-            border-color: #A9744F;
-            box-shadow: 0 0 0 0.2rem rgba(169, 116, 79, 0.25);
-        }
-        .btn-info {
-            background-color: #A9744F;
-            border: none;
-            color: white;
-            transition: 0.3s ease;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .btn-info:hover {
-            background-color: #7B5130;
-        }
-        .link-info {
-            color: #c7b299;
-            text-decoration: none;
-        }
-        .link-info:hover {
-            color: #e0cfa9;
-            text-decoration: underline;
-        }
-        .image-side {
-            position: relative;
-            background: rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-        }
-        .image-side img {
-            object-fit: cover;
-            object-position: center center;
-            width: 100%;
-            height: 100%;
-        }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 30px;
-            margin-bottom: 20px;
-        }
-        .logo-container img {
-            margin-right: 15px;
-            height: 70px;
-        }
-        .logo-container h1 {
-            font-size: 2.5rem;
-            color: white;
-            font-weight: bold;
-        }
-        .login-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-        </style>
-    @endpush
+    <div class="register-bg"></div>
+    <style>
+        body {
+    background: linear-gradient(180deg, #003200 0%, #004d26 70%);
+}
+.register-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: url('{{ asset('images/coffee_bg.jpg') }}') center center/cover no-repeat;
+    opacity: 0.18;
+}
+.register-center-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+.register-card {
+    background: #223322;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 2.2rem 2rem 1.2rem 2rem;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.register-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0.3rem;
+}
+.register-logo img {
+    height: 54px;
+    margin-bottom: 0.2rem;
+}
+.register-logo span {
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 0.2rem;
+}
+.register-separator {
+    width: 100%;
+    border: none;
+    border-top: 2px solid #a3a3a3;
+    margin: 0 0 1.1rem 0;
+}
+.form-label {
+    color: #fff;
+}
+.form-control {
+    background: #f5f5dc;
+    border-radius: 8px;
+    color: #003200;
+}
+.form-control:focus {
+    border-color: #A9744F;
+    box-shadow: 0 0 0 0.2rem rgba(169, 116, 79, 0.15);
+}
+.btn-register {
+    background: #A9744F;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+.btn-register:hover {
+    background: #7B5130;
+}
+.register-footer {
+    width: 100%;
+    margin-top: 1.2rem;
+    text-align: center;
+}
+.register-footer .link-info {
+    color: #c7b299;
+    text-decoration: none;
+}
+.register-footer .link-info:hover {
+    color: #e0cfa9;
+    text-decoration: underline;
+}
+@media (max-width: 600px) {
+    .register-card { padding: 1.2rem 0.7rem 1rem 0.7rem; max-width: 100%; }
+    .register-logo img { height: 38px; }
+    .register-logo span { font-size: 1.1rem; }
+    .fw-normal { font-size: 1.2rem; }
+    .btn-register { font-size: 1rem; padding: 0.7rem 0; }
+    .form-control { font-size: 1rem; padding: 0.6rem 0.8rem; }
+}
+    </style>
 
-    <section class="vh-100">
-        <div class="container-fluid">
-            <div class="row">
-                <!-- Form Side -->
-                <div class="col-sm-6" style="background: linear-gradient(180deg, #003200 0%, #004d26 70%);">
-                    <div class="login-container">
-                        <div class="logo-container">
-                            <img src="{{ asset('images/bliss_logo.png') }}" alt="Logo">
-                            <span class="h1 fw-bold mb-0">Bliss Coffee</span>
-                        </div>
+    <div class="register-center-container">
+        <div class="register-card">
+            <div class="register-logo">
+                <img src="{{ asset('images/bliss_logo.png') }}" alt="Logo">
+                <span>Bliss Coffee</span>
+            </div>
+            <hr class="register-separator">
+            <form method="POST" action="{{ route('register') }}" style="width:100%">
+                @csrf
 
-                        <div class="d-flex align-items-center h-custom-2 px-5 ms-xl-4 mt-5 pt-5 pt-xl-0 mt-xl-n5">
-                            <form method="POST" action="{{ route('register') }}" style="width: 23rem;" class="form-container">
-                                @csrf
+                <h3 class="fw-normal mb-3 pb-3 text-center" style="letter-spacing: 1px; color:#fff;">Register</h3>
 
-                                <h3 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; color:#222;">Register</h3>
-
-                                <!-- Name -->
-                                <div class="form-outline mb-4">
-                                    <input type="text" id="name" name="name"
-                                        class="form-control form-control-lg"
-                                        value="{{ old('name') }}" required autofocus autocomplete="name"/>
-                                    <label class="form-label" for="name">Full Name</label>
-                                    @error('name')
-                                        <div class="text-danger mt-1 small">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Email -->
-                                <div class="form-outline mb-4">
-                                    <input type="email" id="email" name="email"
-                                        class="form-control form-control-lg"
-                                        value="{{ old('email') }}" required autocomplete="username"/>
-                                    <label class="form-label" for="email">Email address</label>
-                                    @error('email')
-                                        <div class="text-danger mt-1 small">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Password -->
-                                <div class="form-outline mb-4">
-                                    <input type="password" id="password" name="password"
-                                        class="form-control form-control-lg"
-                                        required autocomplete="new-password"/>
-                                    <label class="form-label" for="password">Password</label>
-                                    @error('password')
-                                        <div class="text-danger mt-1 small">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Confirm Password -->
-                                <div class="form-outline mb-4">
-                                    <input type="password" id="password_confirmation" name="password_confirmation"
-                                        class="form-control form-control-lg"
-                                        required autocomplete="new-password"/>
-                                    <label class="form-label" for="password_confirmation">Confirm Password</label>
-                                    @error('password_confirmation')
-                                        <div class="text-danger mt-1 small">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Submit -->
-                                <div class="pt-1 mb-4">
-                                    <button class="btn btn-info btn-lg w-100 shadow-sm" type="submit">Register</button>
-                                </div>
-
-                                <!-- Login Link -->
-                                <p class="text-center">Already have an account?
-                                    <a href="{{ route('login') }}" class="link-info">Login here</a>
-                                </p>
-                            </form>
-                        </div>
-                    </div>
+                <!-- Name -->
+                <div class="form-outline mb-4">
+                    <input type="text" id="name" name="name"
+                        class="form-control form-control-lg"
+                        value="{{ old('name') }}" required autofocus autocomplete="name"/>
+                    <label class="form-label" for="name">Full Name</label>
+                    @error('name')
+                        <div class="text-danger mt-1 small">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <!-- Image Side -->
-                <div class="col-sm-6 px-0 d-none d-sm-block image-side">
-                    <img src="{{ asset('images/coffee_bg.jpg') }}"
-                        alt="Register image">
+                <!-- Email -->
+                <div class="form-outline mb-4">
+                    <input type="email" id="email" name="email"
+                        class="form-control form-control-lg"
+                        value="{{ old('email') }}" required autocomplete="username"/>
+                    <label class="form-label" for="email">Email address</label>
+                    @error('email')
+                        <div class="text-danger mt-1 small">{{ $message }}</div>
+                    @enderror
                 </div>
+
+                <!-- Password -->
+                <div class="form-outline mb-4">
+                    <input type="password" id="password" name="password"
+                        class="form-control form-control-lg"
+                        required autocomplete="new-password"/>
+                    <label class="form-label" for="password">Password</label>
+                    @error('password')
+                        <div class="text-danger mt-1 small">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-outline mb-4">
+                    <input type="password" id="password_confirmation" name="password_confirmation"
+                        class="form-control form-control-lg"
+                        required autocomplete="new-password"/>
+                    <label class="form-label" for="password_confirmation">Confirm Password</label>
+                    @error('password_confirmation')
+                        <div class="text-danger mt-1 small">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Submit -->
+                <div class="pt-1 mb-4">
+                    <button class="btn btn-register btn-lg w-100 shadow-sm" type="submit">Register</button>
+                </div>
+            </form>
+            <div class="register-footer">
+                <p class="text-center mb-0">Already have an account?
+                    <a href="{{ route('login') }}" class="link-info">Login here</a>
+                </p>
             </div>
         </div>
-    </section>
+    </div>
 </x-guest-layout>

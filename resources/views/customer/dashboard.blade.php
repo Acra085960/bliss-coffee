@@ -1,5 +1,55 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container, .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        h1, h2 {
+            font-size: 1.2rem;
+        }
+        .row > [class^="col-"], .row > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .card.mb-3, .card.mb-4 {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .btn, .btn-sm, .btn-lg {
+            font-size: 0.98rem;
+            padding: 0.6rem 1rem;
+        }
+        .input-group {
+            flex-direction: column;
+        }
+        .input-group .form-control, .input-group .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        .card-img-top, .bg-light.d-flex {
+            height: 150px !important;
+        }
+        .add-to-cart-form .btn {
+            width: 100%;
+        }
+        .text-center.mt-4 {
+            margin-top: 1.5rem !important;
+        }
+    }
+    /* Agar tabel bisa discroll di layar kecil */
+    .table-responsive, .container .table {
+        overflow-x: auto;
+        display: block;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <h1>Selamat datang, {{ auth()->user()->name }}!</h1>

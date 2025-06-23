@@ -1,6 +1,38 @@
 {{-- filepath: /home/acra/bliss/resources/views/owner/menus.blade.php --}}
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container, .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        h1 {
+            font-size: 1.2rem;
+        }
+        .btn, .btn-sm {
+            font-size: 0.95rem;
+            padding: 0.5rem 0.7rem;
+        }
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        .table-responsive, .table {
+            font-size: 0.95rem;
+        }
+        .table th, .table td {
+            padding: 0.5rem;
+        }
+    }
+    /* Agar tabel bisa discroll di layar kecil */
+    .table-responsive, .container .table {
+        overflow-x: auto;
+        display: block;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container">
     <h1>Kelola Harga Menu</h1>

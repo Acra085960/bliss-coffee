@@ -1,5 +1,56 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .row.mb-4 > [class^="col-"], .row.mb-4 > [class*=" col-"],
+        .row > [class^="col-"], .row > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .order-card {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .table-responsive {
+            font-size: 0.95rem;
+        }
+        .btn, .btn-sm {
+            font-size: 0.95rem;
+            padding: 0.5rem 0.7rem;
+        }
+        h1, .card-title, .card-header h5 {
+            font-size: 1.1rem;
+        }
+        .form-select, .form-control {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        .order-card {
+            min-height: unset;
+        }
+        .nav-tabs .nav-link {
+            font-size: 0.98rem;
+            padding: 0.5rem 0.7rem;
+        }
+        .btn-group {
+            flex-direction: column;
+            width: 100%;
+        }
+        .btn-group .form-control {
+            width: 100% !important;
+            margin-bottom: 0.5rem;
+        }
+        .btn-group .btn {
+            width: 100%;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">

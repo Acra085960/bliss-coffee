@@ -1,5 +1,71 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container-fluid, .container {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        h1, h5 {
+            font-size: 1.1rem;
+        }
+        .lead, .text-muted {
+            font-size: 1rem;
+        }
+        .row > [class^="col-"], .row > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .card.mb-4 {
+            margin-bottom: 1rem;
+        }
+        .card-header, .card-body {
+            padding: 1rem;
+        }
+        .btn, .btn-lg {
+            font-size: 1rem;
+            padding: 0.7rem 1rem;
+            width: 100%;
+            margin-bottom: 0.7rem;
+        }
+        .btn:last-child {
+            margin-bottom: 0;
+        }
+        .me-3 {
+            margin-right: 0 !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .d-flex.align-items-center.mb-3.pb-3.border-bottom,
+        .d-flex.align-items-center.mb-2 {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.5rem;
+        }
+        .text-end, .text-right {
+            text-align: left !important;
+            margin-top: 1rem;
+        }
+        .timeline {
+            padding-left: 15px;
+        }
+        .timeline-item i {
+            left: -20px;
+        }
+        .timeline::before {
+            left: -14px;
+        }
+        .table {
+            font-size: 0.95rem;
+        }
+        .table th, .table td {
+            padding: 0.5rem;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row justify-content-center">

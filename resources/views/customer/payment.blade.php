@@ -1,5 +1,39 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container-fluid, .container {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        .card, .card.mb-4 {
+            margin-bottom: 1rem;
+        }
+        .card-header, .card-body {
+            padding: 1rem;
+        }
+        h5, h4 {
+            font-size: 1.1rem;
+        }
+        .btn, .btn-lg {
+            font-size: 1rem;
+            padding: 0.7rem 1rem;
+            width: 100%;
+        }
+        .mb-4 {
+            margin-bottom: 1rem !important;
+        }
+        .fa-4x {
+            font-size: 2.5rem !important;
+        }
+        .text-center {
+            text-align: center !important;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row justify-content-center">

@@ -1,5 +1,51 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .row.mb-4 > [class^="col-"], .row.mb-4 > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .table-responsive {
+            font-size: 0.95rem;
+        }
+        .btn, .btn-sm {
+            font-size: 0.95rem;
+            padding: 0.5rem 0.7rem;
+        }
+        h1, .card-title, .card-header h5 {
+            font-size: 1.1rem;
+        }
+        .form-select, .form-control {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        .menu-item {
+            margin-bottom: 1rem;
+        }
+        .card-img-top, .bg-light.d-flex {
+            height: 150px !important;
+        }
+    }
+    /* Optional: make filter/search row stack vertically on mobile */
+    @media (max-width: 575.98px) {
+        .row.mb-3 > [class^="col-"], .row.mb-3 > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 0.7rem;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">

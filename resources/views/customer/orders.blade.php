@@ -1,5 +1,62 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container-fluid, .container {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        h1, h4, h5 {
+            font-size: 1.1rem;
+        }
+        .row.mb-4 > [class^="col-"], .row.mb-4 > [class*=" col-"],
+        .row > [class^="col-"], .row > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .order-card, .card.mb-3, .card.mb-4 {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .btn, .btn-sm, .btn-lg {
+            font-size: 0.98rem;
+            padding: 0.6rem 1rem;
+        }
+        .form-select, .form-control {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        .order-items {
+            max-height: none;
+        }
+        .timeline-sm {
+            display: none;
+        }
+        .d-flex.align-items-center {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.5rem;
+        }
+        .text-end, .text-right {
+            text-align: left !important;
+            margin-top: 1rem;
+        }
+        .pagination {
+            flex-wrap: wrap;
+        }
+    }
+    /* Agar tabel/card bisa discroll di layar kecil */
+    .table-responsive, .container .table, .card-body.p-0 {
+        overflow-x: auto;
+        display: block;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">

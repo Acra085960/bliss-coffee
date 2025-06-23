@@ -1,6 +1,64 @@
 {{-- filepath: /home/acra/bliss/resources/views/customer/menu.blade.php --}}
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container-fluid, .container {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        h1, h3 {
+            font-size: 1.1rem;
+        }
+        .lead {
+            font-size: 1rem;
+        }
+        .row > [class^="col-"], .row > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .menu-card {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .btn, .btn-sm, .btn-lg {
+            font-size: 0.98rem;
+            padding: 0.6rem 1rem;
+        }
+        .form-select, .form-control {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        .card-img-top, .bg-light.d-flex {
+            height: 140px !important;
+        }
+        .d-flex.flex-wrap.gap-2 {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        .add-to-cart-form .btn {
+            width: 100%;
+        }
+        .d-flex.justify-content-between, .d-flex.align-items-center {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.5rem;
+        }
+        .text-end {
+            text-align: left !important;
+            margin-top: 1rem;
+        }
+        .pagination {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">

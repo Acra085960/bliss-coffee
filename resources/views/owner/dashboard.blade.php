@@ -1,6 +1,57 @@
 {{-- filepath: /home/acra/bliss/resources/views/owner/dashboard.blade.php --}}
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container, .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        .row > [class^="col-"], .row > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .card.mb-3, .card.mb-4 {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .table-responsive, .table {
+            font-size: 0.95rem;
+        }
+        .table th, .table td {
+            padding: 0.5rem;
+        }
+        .btn, .btn-sm {
+            font-size: 0.95rem;
+            padding: 0.5rem 0.7rem;
+        }
+        h1, .card-title, .card-header, .font-bold {
+            font-size: 1.1rem;
+        }
+        .form-select, .form-control {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        .m-1 {
+            margin: 0.3rem !important;
+        }
+        .d-flex.justify-content-between, .d-flex.align-items-center {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.5rem;
+        }
+    }
+    /* Agar tabel bisa discroll di layar kecil */
+    .card-body.table-responsive, .table-responsive {
+        overflow-x: auto;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container">
     {{-- Executive Summary Cards --}}

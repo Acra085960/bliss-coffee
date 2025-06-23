@@ -1,6 +1,53 @@
 {{-- filepath: /home/acra/bliss/resources/views/manager/dashboard.blade.php --}}
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .row > [class^="col-"], .row > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .card.mb-3 {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .table-responsive {
+            font-size: 0.95rem;
+        }
+        .btn, .btn-sm {
+            font-size: 0.95rem;
+            padding: 0.5rem 0.7rem;
+        }
+        h1, .card-title, .card-header, .h4 {
+            font-size: 1.1rem;
+        }
+        .form-select, .form-control {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        .mb-3, .mt-4 {
+            margin-bottom: 1rem !important;
+            margin-top: 1rem !important;
+        }
+        .table th, .table td {
+            padding: 0.5rem;
+        }
+        .chart-container {
+            min-height: 220px;
+        }
+    }
+    /* Chart container for better mobile scroll */
+    .chart-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+</style>
+@endpush\
+
 @section('content')
 <div class="container">
     <div class="row justify-content-center">

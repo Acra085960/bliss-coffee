@@ -1,5 +1,83 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container-fluid, .container {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        h1 {
+            font-size: 1.1rem;
+        }
+        .row.mb-4 > [class^="col-"], .row.mb-4 > [class*=" col-"],
+        .row > [class^="col-"], .row > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .card.mb-3, .card.mb-4 {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .btn, .btn-sm, .btn-lg {
+            font-size: 0.98rem;
+            padding: 0.6rem 1rem;
+        }
+        .input-group {
+            flex-direction: column;
+        }
+        .input-group .form-control, .input-group .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        .cart-item .row > div {
+            margin-bottom: 10px;
+        }
+        .quantity-controls {
+            margin-top: 10px;
+        }
+        .position-sticky {
+            position: static !important;
+            top: unset !important;
+        }
+        .btn.w-100, .btn-block {
+            width: 100% !important;
+        }
+        .text-end, .text-right {
+            text-align: left !important;
+            margin-top: 1rem;
+        }
+    }
+    /* Agar tabel atau card bisa discroll di layar kecil */
+    .table-responsive, .container .table, .card-body.p-0 {
+        overflow-x: auto;
+        display: block;
+    }
+    @media (max-width: 767.98px) {
+    .d-flex.flex-wrap.gap-2.justify-content-between,
+    .d-flex.flex-wrap.gap-2.justify-content-md-end {
+        flex-direction: column !important;
+        gap: 0.7rem !important;
+        align-items: stretch !important;
+    }
+    .w-100 {
+        width: 100% !important;
+    }
+    .w-md-auto {
+        width: 100% !important;
+    }
+}
+@media (min-width: 768px) {
+    .w-md-auto {
+        width: auto !important;
+    }
+}
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">
@@ -104,27 +182,23 @@
                     </div>
                 </div>
 
-                <!-- Cart Actions -->
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <form action="{{ route('customer.cart.clear') }}" method="POST" 
-                                      onsubmit="return confirm('Apakah Anda yakin ingin mengosongkan keranjang?')">
-                                    @csrf
-                                    <button type="submit" class="btn btn-outline-danger">
-                                        <i class="fas fa-trash me-2"></i>Kosongkan Keranjang
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="col-md-6 text-end">
-                                <a href="{{ route('customer.menu') }}" class="btn btn-outline-primary">
-                                    <i class="fas fa-plus me-2"></i>Tambah Item Lain
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               <!-- Cart Actions -->
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-2 justify-content-between justify-content-md-end">
+            <form action="{{ route('customer.cart.clear') }}" method="POST" 
+                onsubmit="return confirm('Apakah Anda yakin ingin mengosongkan keranjang?')" class="flex-grow-1">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger w-100 mb-2 mb-md-0">
+                    <i class="fas fa-trash me-2"></i>Kosongkan Keranjang
+                </button>
+            </form>
+            <a href="{{ route('customer.menu') }}" class="btn btn-outline-primary w-100 flex-grow-1">
+                <i class="fas fa-plus me-2"></i>Tambah Item Lain
+            </a>
+        </div>
+    </div>
+</div>
             </div>
 
             <div class="col-lg-4">

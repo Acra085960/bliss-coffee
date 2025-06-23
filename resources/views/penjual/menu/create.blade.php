@@ -1,5 +1,44 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .container-fluid, .row, .col-md-8, .offset-md-2 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        .col-md-8, .offset-md-2 {
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        .card {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .form-label, .form-check-label {
+            font-size: 1rem;
+        }
+        .form-control, .form-select {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        .input-group-text {
+            font-size: 1rem;
+        }
+        .btn, .btn-sm {
+            font-size: 1rem;
+            padding: 0.6rem 1rem;
+        }
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row">

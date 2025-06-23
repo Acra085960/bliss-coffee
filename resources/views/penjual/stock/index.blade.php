@@ -1,5 +1,45 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    @media (max-width: 767.98px) {
+        .row.mb-4 > [class^="col-"], .row.mb-4 > [class*=" col-"],
+        .row.mb-3 > [class^="col-"], .row.mb-3 > [class*=" col-"] {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        .card, .stock-card {
+            margin-bottom: 1rem;
+        }
+        .card-body, .card-header {
+            padding: 1rem;
+        }
+        .table-responsive {
+            font-size: 0.95rem;
+        }
+        .btn, .btn-sm {
+            font-size: 0.95rem;
+            padding: 0.5rem 0.7rem;
+        }
+        h1, .card-title, .card-header h5 {
+            font-size: 1.1rem;
+        }
+        .form-select, .form-control {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        .stock-card {
+            min-height: unset;
+        }
+        .modal-dialog {
+            max-width: 95vw;
+            margin: 1.75rem auto;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">
