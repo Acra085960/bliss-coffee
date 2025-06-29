@@ -17,7 +17,11 @@ class Order extends Model
         'customer_phone',
         'total_price',
         'status',
-        'notes'
+        'payment_method',
+        'payment_status',
+        'order_number',
+        'notes',
+        'outlet_id'
     ];
 
     protected $casts = [

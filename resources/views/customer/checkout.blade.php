@@ -126,8 +126,19 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                          <div class="mb-3">
+    <label for="outlet_id" class="form-label">Pilih Gerobak/Outlet</label>
+    <select class="form-select" id="outlet_id" name="outlet_id" required>
+        @foreach($outlets as $outlet)
+            <option value="{{ $outlet->id }}">
+                {{ $outlet->name }} - {{ $outlet->address }}
+            </option>
+        @endforeach
+    </select>
+</div>
                     </div>
                 </div>
+
 
                 <!-- Payment Method -->
                 <div class="card mb-4">

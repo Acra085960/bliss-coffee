@@ -136,9 +136,14 @@
                                     @if(isset($item['category']))
                                         <span class="badge bg-secondary small">{{ $item['category'] }}</span>
                                     @endif
-                                    @if(isset($item['preferences']) && $item['preferences'])
+                                    @if(isset($item['preferences']))
                                         <div class="text-muted small mt-1">
-                                            <i class="fas fa-star text-warning"></i> {{ $item['preferences'] }}
+                                            <i class="fas fa-star text-warning"></i> 
+                                            {{ $item['preferences'] ?? '-' }}
+                                            <!-- Tombol Edit Preferensi -->
+                                            <button type="button" class="btn btn-link btn-sm p-0 ms-2" data-bs-toggle="modal" data-bs-target="#editPrefModal{{ $key }}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
                                         </div>
                                     @endif
                                 </div>
@@ -177,6 +182,33 @@
                                     </button>
                                 </div>
                             </div>
+                            <!-- Modal Edit Preferensi -->
+<div class="modal fade" id="editPrefModal{{ $key }}" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ route('customer.cart.updatePreference', $key) }}" method="POST" class="modal-content">
+            @csrf
+            @method('PATCH')
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Preferensi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <select name="preferences" class="form-select">
+                    <option value="">-- Pilih Preferensi --</option>
+                    <option value="Less Sugar" {{ ($item['preferences'] ?? '')=='Less Sugar'?'selected':'' }}>Gula Sedikit</option>
+                    <option value="No Sugar" {{ ($item['preferences'] ?? '')=='No Sugar'?'selected':'' }}>Tanpa Gula</option>
+                    <option value="Extra Hot" {{ ($item['preferences'] ?? '')=='Extra Hot'?'selected':'' }}>Extra Panas</option>
+                    <option value="Extra Ice" {{ ($item['preferences'] ?? '')=='Extra Ice'?'selected':'' }}>Ekstra Es</option>
+                    <option value="Oat Milk" {{ ($item['preferences'] ?? '')=='Oat Milk'?'selected':'' }}>Susu Oat</option>
+                    <option value="Almond Milk" {{ ($item['preferences'] ?? '')=='Almond Milk'?'selected':'' }}>Susu Almond</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
                         </div>
                         @endforeach
                     </div>

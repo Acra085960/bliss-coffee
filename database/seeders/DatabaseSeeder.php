@@ -100,6 +100,7 @@ class DatabaseSeeder extends Seeder
 
         // Call other seeders in correct order
         $this->call([
+            OutletSeeder::class,
             MenuSeeder::class,
             StockSeeder::class,
             OrderSeeder::class,

@@ -93,6 +93,7 @@ Route::middleware(['auth', 'role:pembeli', 'verified'])->prefix('customer')->nam
     Route::get('/track/{orderNumber?}', [CustomerOrderController::class, 'trackOrder'])->name('track-order');
     Route::get('/orders/status', [CustomerOrderController::class, 'getOrderStatus'])->name('orders.status');
     Route::post('/orders/{order}/cancel', [CustomerOrderController::class, 'cancelOrder'])->name('orders.cancel');
+    Route::patch('/cart/preference/{key}', [CartController::class, 'updatePreference'])->name('cart.updatePreference');
 });
 
 // ===========================================
@@ -120,6 +121,7 @@ Route::middleware(['auth', 'role:owner', 'verified'])->prefix('owner')->name('ow
     Route::get('/feedback', [OwnerFeedbackController::class, 'index'])->name('feedback');
     // Monitoring Outlet/Gerobak
     Route::get('/outlets', [OwnerOutletController::class, 'index'])->name('outlets');
+    Route::patch('/outlets/{outlet}/assign-penjual', [OwnerOutletController::class, 'assignPenjual'])->name('outlets.assignPenjual');
 });
 
 // ===========================================

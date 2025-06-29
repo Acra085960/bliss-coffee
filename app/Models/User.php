@@ -65,4 +65,9 @@ public function feedbacks()
 {
     return $this->hasMany(\App\Models\Feedback::class);
 }
+
+public function outlets()
+{
+    return $this->hasMany(Outlet::class);
+}
 }

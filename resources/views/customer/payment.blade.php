@@ -49,6 +49,29 @@
                         <p class="text-muted">Total: <strong>Rp {{ number_format($order->total_price, 0, ',', '.') }}</strong></p>
                     </div>
                     
+                    @if($order->orderItems && count($order->orderItems))
+    <div class="mb-3">
+        <h6>Detail Pesanan:</h6>
+        <ul class="list-group mb-2">
+            @foreach($order->orderItems as $item)
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ $item->menu->name ?? 'Menu' }}
+                    <span>x{{ $item->quantity }}</span>
+                    <span>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
+                </li>
+            @endforeach
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Service Fee</span>
+                <span>Rp 2.500</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center fw-bold">
+                <span>Total</span>
+                <span>Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+            </li>
+        </ul>
+    </div>
+@endif
+
                     <button id="pay-button" class="btn btn-primary btn-lg">
                         <i class="fas fa-lock me-2"></i>Bayar Sekarang
                     </button>
@@ -66,24 +89,20 @@
 </div>
 
 <!-- Midtrans Snap JS -->
-<script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
-
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
 <script type="text/javascript">
 document.getElementById('pay-button').onclick = function(){
     snap.pay('{{ $snapToken }}', {
         onSuccess: function(result){
             alert("Pembayaran berhasil!");
-            console.log(result);
             window.location.href = '{{ route("customer.order-success", $order->id) }}';
         },
         onPending: function(result){
             alert("Menunggu pembayaran!");
-            console.log(result);
             window.location.href = '{{ route("customer.orders") }}';
         },
         onError: function(result){
             alert("Pembayaran gagal!");
-            console.log(result);
             window.location.href = '{{ route("customer.checkout") }}';
         }
     });

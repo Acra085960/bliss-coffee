@@ -134,4 +134,14 @@ class CartController extends Controller
             'formatted' => 'Rp ' . number_format($total, 0, ',', '.')
         ]);
     }
+
+ public function updatePreference(Request $request, $key)
+{
+    $cart = session()->get('cart', []);
+    if (isset($cart[$key])) {
+        $cart[$key]['preferences'] = $request->preferences;
+        session()->put('cart', $cart);
+    }
+    return back()->with('success', 'Preferensi berhasil diubah.');
+}
 }

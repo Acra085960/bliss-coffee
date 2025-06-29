@@ -18,7 +18,6 @@
             padding: 0.5rem;
         }
     }
-    /* Agar tabel bisa discroll di layar kecil */
     .table-responsive, .container .table {
         overflow-x: auto;
         display: block;
@@ -29,21 +28,27 @@
 @section('content')
 <div class="container">
     <h1>Monitoring Outlet/Gerobak</h1>
+    <div class="table-responsive">
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Nama Penjual</th>
-                <th>Email</th>
+                <th>Nama Outlet</th>
+                <th>Penanggung Jawab</th>
+                <th>Email Penjual</th>
+                <th>Email Outlet</th>
                 <th>Omzet</th>
                 <th>Jumlah Pesanan</th>
                 <th>Status</th>
+                <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
             @forelse($outlets as $outlet)
             <tr>
                 <td>{{ $outlet->name }}</td>
-                <td>{{ $outlet->email }}</td>
+                <td>{{ $outlet->user ? $outlet->user->name : 'Tidak ada penjual' }}</td>
+                <td>{{ $outlet->user ? $outlet->user->email : '-' }}</td>
+                <td>{{ $outlet->email ?? '-' }}</td>
                 <td>Rp {{ number_format($outlet->orders->sum('total_price'), 0, ',', '.') }}</td>
                 <td>{{ $outlet->orders->count() }}</td>
                 <td>
@@ -53,13 +58,49 @@
                         <span class="badge bg-danger">Nonaktif</span>
                     @endif
                 </td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignPenjualModal{{ $outlet->id }}">
+                        <i class="fas fa-user-edit"></i> Assign Penjual
+                    </button>
+                </td>
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="text-center">Belum ada outlet/gerobak.</td>
+                <td colspan="8" class="text-center">Belum ada outlet/gerobak.</td>
             </tr>
             @endforelse
         </tbody>
     </table>
+    </div>
+
+    {{-- Modal Assign Penjual (letakkan di luar table agar modal Bootstrap berfungsi) --}}
+    @foreach($outlets as $outlet)
+    <div class="modal fade" id="assignPenjualModal{{ $outlet->id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <form action="{{ route('owner.outlets.assignPenjual', $outlet->id) }}" method="POST" class="modal-content">
+                @csrf
+                @method('PATCH')
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Penjual ke {{ $outlet->name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="user_id_{{ $outlet->id }}" class="form-label">Pilih Penjual</label>
+                    <select name="user_id" id="user_id_{{ $outlet->id }}" class="form-select">
+                        <option value="">-- Tidak ada penjual --</option>
+                        @foreach($penjuals as $penjual)
+                            <option value="{{ $penjual->id }}" {{ $outlet->user_id == $penjual->id ? 'selected' : '' }}>
+                                {{ $penjual->name }} ({{ $penjual->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endforeach
 </div>
 @endsection

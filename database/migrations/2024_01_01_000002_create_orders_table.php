@@ -11,10 +11,11 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('order_number')->unique()->nullable();
+            $table->string('order_number')->unique();
             $table->string('customer_name');
             $table->string('customer_phone');
             $table->decimal('total_price', 10, 2);
+            $table->foreignId('outlet_id')->nullable()->constrained('outlets')->onDelete('set null'); // Outlet terkait (opsional)
             $table->enum('status', ['pending', 'processing', 'ready', 'completed', 'cancelled'])->default('pending');
             $table->enum('payment_method', ['cash', 'midtrans'])->default('cash')->nullable();
             $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending')->nullable();
