@@ -28,7 +28,7 @@ class Menu extends Model
     // Relasi ke orders (pivot)
     public function orders()
     {
-        return $this->belongsToMany(\App\Models\Order::class, 'order_menu', 'menu_id', 'order_id');
+        return $this->belongsToMany(\App\Models\Order::class, 'order_items', 'menu_id', 'order_id');
     }
 
     // Relasi ke order details

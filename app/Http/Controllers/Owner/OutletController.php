@@ -11,10 +11,9 @@ class OutletController extends Controller
 {
     public function index()
     {
-        // Ambil semua outlet beserta user penanggung jawab dan orders
         $outlets = Outlet::with('user', 'orders')->get();
-        // Ambil semua user dengan role penjual
-        $penjuals = User::role('penjual')->get();
+        $penjuals = User::where('role', 'penjual')->get(); // pastikan ini ada
+
         return view('owner.outlets', compact('outlets', 'penjuals'));
     }
 
@@ -30,4 +29,13 @@ class OutletController extends Controller
 
         return redirect()->route('owner.outlets')->with('success', 'Penjual berhasil di-assign ke outlet.');
     }
+
+    public function toggleActive($id)
+{
+    $outlet = \App\Models\Outlet::findOrFail($id);
+    $outlet->is_active = !$outlet->is_active;
+    $outlet->save();
+
+    return back()->with('success', 'Status outlet berhasil diubah.');
+}
 }

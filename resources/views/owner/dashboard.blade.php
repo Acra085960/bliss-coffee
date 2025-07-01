@@ -45,7 +45,6 @@
             gap: 0.5rem;
         }
     }
-    /* Agar tabel bisa discroll di layar kecil */
     .card-body.table-responsive, .table-responsive {
         overflow-x: auto;
     }
@@ -60,8 +59,7 @@
             <div class="card text-white bg-primary mb-3">
                 <div class="card-body">
                     <h5 class="card-title">💰 Pendapatan Bulan Ini</h5>
-                    <p class="card-text">Rp {{ number_format($monthlyRevenueNow, 0, ',', '.') }}
-{{ $monthlyOrdersNow }}</p>
+                    <p class="card-text">Rp {{ number_format($monthlyRevenueNow, 0, ',', '.') }}</p>
                 </div>
             </div>
         </div>
@@ -82,11 +80,10 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white bg-warning mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">📍 Outlet Aktif</h5>
-                    <p class="card-text">{{ $activeOutlets }}</p>
-                </div>
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">📍 Outlet Aktif</h5>
+                <p class="card-text">{{ $activeOutlets }}</p>
             </div>
         </div>
     </div>
@@ -152,6 +149,7 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card">
+                {{-- 
                 <div class="card-header">Feedback Konsumen</div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered mb-0">
@@ -182,7 +180,8 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
+                </div> 
+                --}}
             </div>
         </div>
     </div>

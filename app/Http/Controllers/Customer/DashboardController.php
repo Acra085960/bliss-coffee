@@ -17,8 +17,8 @@ class DashboardController extends Controller
                            ->limit(5)
                            ->get();
         
-        $totalOrders = Order::where('user_id', $user->id)->count();
-        $totalSpent = Order::where('user_id', $user->id)->sum('total_price');
+        $totalOrders = \App\Models\Order::where('user_id', auth()->id())->count();
+$totalSpent = \App\Models\Order::where('user_id', auth()->id())->sum('total_price');
         
         // Add menu data for display
         $menus = Menu::limit(6)->get();

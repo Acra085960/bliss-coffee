@@ -59,10 +59,23 @@
                     @endif
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignPenjualModal{{ $outlet->id }}">
-                        <i class="fas fa-user-edit"></i> Assign Penjual
-                    </button>
-                </td>
+    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignPenjualModal{{ $outlet->id }}">
+        <i class="fas fa-user-edit"></i> Assign Penjual
+    </button>
+    <form action="{{ route('owner.outlets.toggleActive', $outlet->id) }}" method="POST" class="d-inline">
+        @csrf
+        @method('PATCH')
+        @if($outlet->is_active)
+            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Nonaktifkan outlet ini?')">
+                <i class="fas fa-ban"></i> Nonaktifkan
+            </button>
+        @else
+            <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Aktifkan outlet ini?')">
+                <i class="fas fa-check"></i> Aktifkan
+            </button>
+        @endif
+    </form>
+</td>
             </tr>
             @empty
             <tr>

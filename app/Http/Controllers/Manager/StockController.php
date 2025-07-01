@@ -9,13 +9,14 @@ class StockController extends Controller
         public function index()
             {
                 $allSellers = \App\Models\User::where('role', 'penjual')->get();
+                $allStocks = \App\Models\Stock::all();
                 $selectedSellerId = request('seller_id');
                 $sellers = \App\Models\User::where('role', 'penjual')
                     ->when($selectedSellerId, fn($q) => $q->where('id', $selectedSellerId))
                     ->with('stocks', 'outlets')
                     ->get();
 
-                return view('manager.stocks', compact('sellers', 'allSellers', 'selectedSellerId'));
+                return view('manager.stocks', compact('sellers', 'allSellers', 'selectedSellerId', 'allStocks'));
             }
             public function update(Request $request, $stockId)
 {

@@ -40,7 +40,6 @@
             min-height: 220px;
         }
     }
-    /* Chart container for better mobile scroll */
     .chart-container {
         width: 100%;
         overflow-x: auto;
@@ -90,15 +89,52 @@
                         </div>
                     </div>
 
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">Penjualan 7 Hari Terakhir</div>
-                                <div class="card-body">
-                                    <canvas id="sales7Chart"></canvas>
-                                </div>
-                            </div>
-                        </div>
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Penjualan 7 Hari Terakhir</div>
+            <div class="card-body">
+                <canvas id="sales7Chart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Tabel Bahan Baku</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Nama Bahan</th>
+                                <th>Jumlah Tersisa</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($ingredients as $item)
+                            <tr>
+                                <td>{{ $item->name }}</td>
+                                <td>{{ $item->current_stock }}</td>
+                                <td>
+                                    @if($item->current_stock == 0)
+                                        <span class="badge bg-danger">Habis</span>
+                                    @elseif($item->current_stock < $item->minimum_stock)
+                                        <span class="badge bg-warning text-dark">Hampir habis</span>
+                                    @else
+                                        <span class="badge bg-success">Aman</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                        {{-- 
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">Menu Terlaris Minggu Ini</div>
@@ -107,9 +143,11 @@
                                 </div>
                             </div>
                         </div>
+                        --}}
                     </div>
 
                     <div class="row mt-4">
+                        {{--
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">Tabel Stok Menu</div>
@@ -143,41 +181,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">Tabel Bahan Baku</div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nama Bahan</th>
-                                                    <th>Jumlah Tersisa</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($ingredients as $item)
-                                                <tr>
-                                                    <td>{{ $item->name }}</td>
-                                                    <td>{{ $item->current_stock }}</td>
-                                                    <td>
-                                                        @if($item->current_stock == 0)
-                                                            <span class="badge bg-danger">Habis</span>
-                                                        @elseif($item->current_stock < $item->minimum_stock)
-                                                            <span class="badge bg-warning text-dark">Hampir habis</span>
-                                                        @else
-                                                            <span class="badge bg-success">Aman</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        --}}
+                        
                     </div>
 
                     <div class="row mt-4">
@@ -234,37 +239,49 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const sales7Days = @json($sales7Days);
-const dates = @json($dates->map(fn($d) => \Carbon\Carbon::parse($d)->format('d M')));
-const topMenus = @json($topMenus->pluck('name'));
-const topMenusCount = @json($topMenus->pluck('orders_count'));
+document.addEventListener('DOMContentLoaded', function() {
+    // Penjualan 7 Hari Terakhir
+    const sales7Days = @json($sales7Days ?? []);
+    const dates = @json($dates ?? []);
+    const ctx = document.getElementById('sales7Chart');
+    if (ctx && sales7Days.length && dates.length) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Penjualan (Rp)',
+                    data: sales7Days,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                }]
+            }
+        });
+    }
 
-new Chart(document.getElementById('sales7Chart'), {
-    type: 'bar',
-    data: {
-        labels: dates,
-        datasets: [{
-            label: 'Penjualan (Rp)',
-            data: sales7Days,
-            backgroundColor: 'rgba(54, 162, 235, 0.7)'
-        }]
-    },
-    options: { responsive: true, plugins: { legend: { display: false } } }
-});
-
-new Chart(document.getElementById('topMenusChart'), {
-    type: 'pie',
-    data: {
-        labels: topMenus,
-        datasets: [{
-            label: 'Menu Terlaris',
-            data: topMenusCount,
-            backgroundColor: [
-                '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF'
-            ]
-        }]
-    },
-    options: { responsive: true }
+    // Menu Terlaris Minggu Ini (aktifkan jika ingin menampilkan chart)
+    /*
+    const topMenusLabels = @json($topMenusLabels ?? []);
+    const topMenusCounts = @json($topMenusCounts ?? []);
+    const topMenusCtx = document.getElementById('topMenusChart');
+    if (topMenusCtx && topMenusLabels.length && topMenusCounts.length) {
+        new Chart(topMenusCtx, {
+            type: 'pie',
+            data: {
+                labels: topMenusLabels,
+                datasets: [{
+                    data: topMenusCounts,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ]
+                }]
+            }
+        });
+    }
+    */
 });
 </script>
 @endpush

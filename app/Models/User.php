@@ -28,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'role', // Menambahkan 'role' ke dalam fillable
         'is_active',
+        'email_verified_at',
     ];
 
     /**

@@ -68,7 +68,7 @@ class MenuController extends Controller
             'price' => 'required|numeric|min:0',
             'category' => 'required|string|max:100',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'is_available' => 'boolean'
+            'is_available' => 'nullable'
         ]);
 
         $menuData = [
@@ -76,7 +76,8 @@ class MenuController extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'category' => $request->category,
-            'is_available' => $request->has('is_available') ? true : false
+            'is_available' => $request->has('is_available') ? true : false,
+            'user_id' => auth()->id(), 
         ];
 
         // Handle image upload

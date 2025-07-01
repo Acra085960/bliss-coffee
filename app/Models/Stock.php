@@ -18,7 +18,8 @@ class Stock extends Model
         'unit',
         'price_per_unit',
         'description',
-        'is_active'
+        'is_active',
+        'outlet_id'
     ];
 
     protected $casts = [

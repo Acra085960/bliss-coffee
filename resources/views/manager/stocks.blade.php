@@ -91,31 +91,31 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($seller->stocks as $stock)
-                                <tr>
-                                    <td>{{ $stock->name }}</td>
-                                    <td>{{ $stock->category }}</td>
-                                    <td>
-                                        <span class="fw-bold {{ $stock->current_stock <= $stock->minimum_stock ? 'text-danger' : 'text-success' }}">
-                                            {{ $stock->current_stock }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $stock->unit }}</td>
-                                    <td>{{ $stock->minimum_stock }}</td>
-                                    <td>
-                                        @if($stock->current_stock <= $stock->minimum_stock)
-                                            <span class="badge bg-danger badge-status">Hampir Habis</span>
-                                        @else
-                                            <span class="badge bg-success badge-status">Aman</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted">Tidak ada stok bahan baku untuk outlet ini.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
+@foreach($allStocks as $stockMaster)
+    @php
+        // Cari stok milik seller/outlet ini
+        $stock = $seller->stocks->firstWhere('id', $stockMaster->id);
+    @endphp
+    <tr>
+        <td>{{ $stockMaster->name }}</td>
+        <td>{{ $stockMaster->category }}</td>
+        <td>
+            <span class="fw-bold {{ ($stock->current_stock ?? 0) <= ($stockMaster->minimum_stock ?? 0) ? 'text-danger' : 'text-success' }}">
+                {{ $stock->current_stock ?? 0 }}
+            </span>
+        </td>
+        <td>{{ $stockMaster->unit }}</td>
+        <td>{{ $stockMaster->minimum_stock }}</td>
+        <td>
+            @if(($stock->current_stock ?? 0) <= ($stockMaster->minimum_stock ?? 0))
+                <span class="badge bg-danger badge-status">Hampir Habis</span>
+            @else
+                <span class="badge bg-success badge-status">Aman</span>
+            @endif
+        </td>
+    </tr>
+@endforeach
+</tbody>
                     </table>
                 </div>
             </div>

@@ -9,14 +9,10 @@ class Outlet extends Model
         'name', 'address', 'city', 'province', 'lat', 'lng', 'phone', 'employee_id'
     ];
 
-    public function employee()
-    {
-        return $this->belongsTo(User::class);
-    }
 
-    public function user()
+ public function user()
 {
-    return $this->belongsTo(\App\Models\User::class);
+    return $this->belongsTo(User::class);
 }
 
 public function orders()

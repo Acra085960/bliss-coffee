@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Midtrans\Transaction;
+use Midtrans\Config;
 
 class OrderController extends Controller
 {
@@ -75,64 +77,93 @@ class OrderController extends Controller
         return redirect()->route('customer.cart')->with('success', 'Items from order #' . $order->order_number . ' have been added to your cart!');
     }
 
-    public function trackOrder(Request $request, $orderNumber = null)
-    {
-        if ($orderNumber) {
-            $order = Order::where('order_number', $orderNumber)
-                         ->where('user_id', auth()->id())
-                         ->with(['orderItems.menu'])
-                         ->first();
-            
-            if (!$order) {
-                return redirect()->route('customer.orders')->with('error', 'Pesanan tidak ditemukan!');
-            }
-            
-            return view('customer.track-order', compact('order'));
-        }
-        
-        // Show form to enter order number
-        return redirect()->route('customer.dashboard')->with('error', 'Nomor pesanan tidak ditemukan!');
-    }
-
-    public function getOrderStatus(Request $request)
-    {
-        $orderNumber = $request->get('order_number');
+public function trackOrder(Request $request, $orderNumber = null)
+{
+    if ($orderNumber) {
         $order = Order::where('order_number', $orderNumber)
                      ->where('user_id', auth()->id())
                      ->with(['orderItems.menu'])
                      ->first();
         
         if (!$order) {
-            return response()->json(['error' => 'Pesanan tidak ditemukan'], 404);
+            return redirect()->route('customer.orders')->with('error', 'Pesanan tidak ditemukan!');
         }
-        
-        return response()->json([
-            'status' => $order->status,
-            'payment_status' => $order->payment_status ?? 'pending',
-            'estimated_time' => $this->getEstimatedTime($order),
-            'progress_percentage' => $this->getProgressPercentage($order->status),
-            'status_message' => $this->getStatusMessage($order->status),
-            'updated_at' => $order->updated_at->format('H:i'),
-            'can_cancel' => in_array($order->status, ['pending', 'processing'])
-        ]);
+
+        // Data tambahan untuk dashboard
+        $user = auth()->user();
+        $recentOrders = Order::where('user_id', $user->id)
+                           ->orderBy('created_at', 'desc')
+                           ->limit(5)
+                           ->get();
+        $totalOrders = Order::where('user_id', $user->id)->count();
+        $totalSpent = Order::where('user_id', $user->id)->sum('total_price');
+        $menus = \App\Models\Menu::limit(6)->get();
+
+        // Flag untuk menandai bahwa ini adalah tracking mode
+        $isTracking = true;
+        $trackedOrder = $order;
+
+        return view('customer.dashboard', compact(
+            'order',
+            'recentOrders',
+            'totalOrders',
+            'totalSpent',
+            'menus',
+            'isTracking',
+            'trackedOrder'
+        ));
+    }
+    
+    return redirect()->route('customer.dashboard')->with('error', 'Nomor pesanan tidak ditemukan!');
+}
+
+   public function cancelOrder(Request $request, Order $order)
+{
+    
+    // Pastikan order milik user yang sedang login
+    if ($order->user_id !== auth()->id()) {
+        abort(403, 'Unauthorized access to order');
+    }
+    
+    // Hanya boleh cancel jika status pending/processing
+    if (!in_array($order->status, ['pending'])) {
+        return response()->json(['error' => 'Pesanan tidak dapat dibatalkan'], 400);
     }
 
-    public function cancelOrder(Request $request, Order $order)
-    {
-        // Verify order belongs to current user
-        if ($order->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized access to order');
+    // Inisialisasi Midtrans config
+    \Midtrans\Config::$serverKey = config('midtrans.server_key');
+    \Midtrans\Config::$isProduction = config('midtrans.is_production');
+    \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
+    \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+
+    // Jika pembayaran sudah settlement/capture, lakukan refund ke Midtrans
+    if (in_array($order->payment_status, ['settlement', 'capture'])) {
+         try {
+            $refund = Transaction::refund($order->order_number, [
+                'refund_key' => uniqid('refund_'),
+                'amount' => $order->total_price,
+                'reason' => 'Order dibatalkan oleh pembeli'
+            ]);
+            $order->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
+        } catch (\Exception $e) {
+            // Tambahkan kode log di sini
+            \Log::error('Refund gagal', [
+                'order_number' => $order->order_number,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Refund gagal: ' . $e->getMessage()], 500);
         }
-        
-        // Only allow cancellation for pending or processing orders
-        if (!in_array($order->status, ['pending', 'processing'])) {
-            return response()->json(['error' => 'Pesanan tidak dapat dibatalkan'], 400);
-        }
-        
+    } else {
+        // Jika belum dibayar, cukup update status
         $order->update(['status' => 'cancelled']);
-        
-        return response()->json(['success' => true, 'message' => 'Pesanan berhasil dibatalkan']);
     }
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Pesanan berhasil dibatalkan' . (isset($refund) ? ' dan refund diproses.' : '')
+    ]);
+}
 
     private function getEstimatedTime($order)
     {

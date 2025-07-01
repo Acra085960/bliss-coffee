@@ -42,7 +42,6 @@
                 <thead>
                     <tr>
                         <th>Nama Menu</th>
-                        <th>Penjual</th>
                         <th>Jumlah Terjual</th>
                         <th>Total Pendapatan</th>
                     </tr>
@@ -51,7 +50,6 @@
                     @forelse($topMenus as $menu)
                         <tr>
                             <td>{{ $menu->name }}</td>
-                            <td>{{ $menu->seller->name ?? '-' }}</td>
                             <td>{{ $menu->sold_count ?? 0 }}</td>
                             <td>Rp{{ number_format($menu->total_income ?? 0, 0, ',', '.') }}</td>
                         </tr>

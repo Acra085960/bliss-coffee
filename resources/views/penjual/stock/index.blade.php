@@ -50,9 +50,6 @@
             <a href="{{ route('penjual.stock.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>Tambah Item Stok
             </a>
-            <a href="{{ route('penjual.stock.low-stock') }}" class="btn btn-warning">
-                <i class="fas fa-exclamation-triangle me-2"></i>Stok Menipis
-            </a>
         </div>
     </div>
 
@@ -242,21 +239,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($recentMovements as $movement)
-                                <tr>
-                                    <td>{{ $movement->created_at->format('H:i d/m') }}</td>
-                                    <td>{{ $movement->stock->name ?? '-' }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ $movement->type == 'in' ? 'success' : ($movement->type == 'out' ? 'warning' : 'info') }}">
-                                            {{ ucfirst($movement->type) }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $movement->quantity }} {{ $movement->stock->unit }}</td>
-                                    <td>{{ $movement->reason }}</td>
-                                    <td>{{ $movement->user->name ?? '-' }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
+    @foreach($recentMovements as $movement)
+    <tr>
+        <td>{{ $movement->created_at->format('H:i d/m') }}</td>
+        <td>{{ $movement->stock->name ?? '-' }}</td>
+        <td>
+            <span class="badge bg-{{ $movement->type == 'in' ? 'success' : ($movement->type == 'out' ? 'warning' : 'info') }}">
+                {{ ucfirst($movement->type) }}
+            </span>
+        </td>
+        <td>{{ $movement->quantity }} {{ $movement->stock->unit }}</td>
+        <td>{{ $movement->reason }}</td>
+        <td>{{ $movement->user->name ?? '-' }}</td>
+    </tr>
+    @endforeach
+</tbody>
                         </table>
                     </div>
                 </div>

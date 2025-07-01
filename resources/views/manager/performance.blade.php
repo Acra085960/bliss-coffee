@@ -45,7 +45,6 @@
                         <th>Email</th>
                         <th>Jumlah Pesanan</th>
                         <th>Total Penjualan</th>
-                        <th>Rata-rata Rating</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,13 +54,6 @@
                             <td>{{ $seller->email }}</td>
                             <td>{{ $seller->orders_count ?? 0 }}</td>
                             <td>Rp{{ number_format($seller->total_sales ?? 0, 0, ',', '.') }}</td>
-                            <td>
-                                @if(isset($seller->average_rating))
-                                    {{ number_format($seller->average_rating, 2) }} / 5
-                                @else
-                                    -
-                                @endif
-                            </td>
                         </tr>
                     @empty
                         <tr>

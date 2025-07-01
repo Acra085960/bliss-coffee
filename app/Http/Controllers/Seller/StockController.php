@@ -11,48 +11,63 @@ use Illuminate\Support\Facades\DB;
 class StockController extends Controller
 {
     public function index(Request $request)
-    {
-        $category = $request->get('category');
-        $status = $request->get('status');
-        
-        $query = Stock::where('is_active', true);
-        
-        if ($category) {
-            $query->where('category', $category);
-        }
-        
-        if ($status) {
-            switch ($status) {
-                case 'low':
-                    $query->whereRaw('current_stock <= minimum_stock');
-                    break;
-                case 'out':
-                    $query->where('current_stock', '<=', 0);
-                    break;
-                case 'overstock':
-                    $query->whereRaw('current_stock >= maximum_stock');
-                    break;
-            }
-        }
-        
-        $stocks = $query->orderBy('name')->paginate(20);
-        
-        // Get summary data
-        $summary = [
-            'total_items' => Stock::where('is_active', true)->count(),
-            'low_stock' => Stock::where('is_active', true)->whereRaw('current_stock <= minimum_stock')->count(),
-            'out_of_stock' => Stock::where('is_active', true)->where('current_stock', '<=', 0)->count(),
-            'categories' => Stock::where('is_active', true)->distinct()->pluck('category')
-        ];
-        
-        // Get recent movements
-        $recentMovements = StockMovement::with(['stock', 'user'])
-                                       ->orderBy('created_at', 'desc')
-                                       ->limit(10)
-                                       ->get();
-        
-        return view('penjual.stock.index', compact('stocks', 'summary', 'recentMovements', 'category', 'status'));
+{
+    $category = $request->get('category');
+    $status = $request->get('status');
+
+    // Ambil semua outlet milik penjual yang login
+    $outletIds = \App\Models\Outlet::where('user_id', auth()->id())->pluck('id');
+
+    // Ambil semua master stock (bahan baku) untuk ditampilkan walaupun stoknya kosong
+    $allStocks = Stock::where('is_active', true)
+        ->whereIn('outlet_id', $outletIds)
+        ->orderBy('name')
+        ->get();
+
+    $query = Stock::whereIn('outlet_id', $outletIds)->where('is_active', true);
+
+    if ($category) {
+        $query->where('category', $category);
     }
+
+    if ($status) {
+        switch ($status) {
+            case 'low':
+                $query->whereRaw('current_stock <= minimum_stock');
+                break;
+            case 'out':
+                $query->where('current_stock', '<=', 0);
+                break;
+            case 'overstock':
+                $query->whereRaw('current_stock >= maximum_stock');
+                break;
+        }
+    }
+
+    $stocks = $query->orderBy('name')->paginate(20);
+
+    // Get summary data (juga filter outlet)
+    $summary = [
+        'total_items' => Stock::whereIn('outlet_id', $outletIds)->where('is_active', true)->count(),
+        'low_stock' => Stock::whereIn('outlet_id', $outletIds)->where('is_active', true)->whereRaw('current_stock <= minimum_stock')->count(),
+        'out_of_stock' => Stock::whereIn('outlet_id', $outletIds)->where('is_active', true)->where('current_stock', '<=', 0)->count(),
+        'categories' => Stock::whereIn('outlet_id', $outletIds)->where('is_active', true)->distinct()->pluck('category')
+    ];
+
+    // Get recent movements (hanya stok milik outlet penjual)
+    $recentMovements = StockMovement::with(['stock', 'user'])
+    ->whereHas('stock', function($q) use ($outletIds) {
+        $q->whereIn('outlet_id', $outletIds);
+    })
+    ->where('user_id', auth()->id())
+    ->orderBy('created_at', 'desc')
+    ->limit(10)
+    ->get();
+
+    return view('penjual.stock.index', compact(
+        'stocks', 'summary', 'recentMovements', 'category', 'status', 'allStocks'
+    ));
+}
 
     public function create()
     {
@@ -63,37 +78,47 @@ class StockController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'required|string|max:100',
-            'current_stock' => 'required|numeric|min:0',
-            'minimum_stock' => 'required|numeric|min:0',
-            'maximum_stock' => 'required|numeric|min:0',
-            'unit' => 'required|string|max:50',
-            'price_per_unit' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string'
-        ]);
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'category' => 'required|string|max:100',
+        'current_stock' => 'required|numeric|min:0',
+        'minimum_stock' => 'required|numeric|min:0',
+        'maximum_stock' => 'required|numeric|min:0',
+        'unit' => 'required|string|max:50',
+        'price_per_unit' => 'nullable|numeric|min:0',
+        'description' => 'nullable|string'
+    ]);
 
-        $stock = Stock::create($request->all());
+    // Ambil outlet_id milik penjual yang login
+    $outletId = auth()->user()->outlets()->first()->id; // sesuaikan jika perlu
+    $validated['outlet_id'] = $outletId;
 
-        // Create initial stock movement
-        StockMovement::create([
-            'stock_id' => $stock->id,
-            'user_id' => auth()->id(),
-            'type' => 'in',
-            'quantity' => $request->current_stock,
-            'previous_stock' => 0,
-            'new_stock' => $request->current_stock,
-            'reason' => 'Initial stock',
-            'notes' => 'Stock item created'
-        ]);
+    // Hanya ini yang dipakai!
+    $stock = Stock::create($validated);
 
-        return redirect()->route('penjual.stock.index')->with('success', 'Item stok berhasil ditambahkan!');
-    }
+    // Create initial stock movement
+    StockMovement::create([
+        'stock_id' => $stock->id,
+        'user_id' => auth()->id(),
+        'type' => 'in',
+        'quantity' => $request->current_stock,
+        'previous_stock' => 0,
+        'new_stock' => $request->current_stock,
+        'reason' => 'Initial stock',
+        'notes' => 'Stock item created'
+    ]);
+
+    return redirect()->route('penjual.stock.index')->with('success', 'Item stok berhasil ditambahkan!');
+}
 
     public function edit(Stock $stock)
     {
+        $outletIds = \App\Models\Outlet::where('user_id', auth()->id())->pluck('id');
+    if (!$outletIds->contains($stock->outlet_id)) {
+        abort(403);
+    }
+
         $categories = ['Kopi', 'Susu & Dairy', 'Gula & Pemanis', 'Bahan Tambahan', 'Kemasan', 'Lainnya'];
         $units = ['kg', 'liter', 'pcs', 'gram', 'ml', 'sachet', 'cup'];
         

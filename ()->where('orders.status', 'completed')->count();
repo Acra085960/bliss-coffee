@@ -1,0 +1,14 @@
+[90m= [39m[34;4mApp\Models\Menu[39;24m {#6584
+    [34mid[39m: [35m8[39m,
+    [34mname[39m: "[32mFrappuccino[39m",
+    [34mdescription[39m: "[32mMinuman kopi dingin blended dengan es dan whipped cream[39m",
+    [34mprice[39m: "[32m35000.00[39m",
+    [34mcategory[39m: "[32mKopi Dingin[39m",
+    [34mimage[39m: [36mnull[39m,
+    [34mis_available[39m: [35m1[39m,
+    [34mstock[39m: [35m0[39m,
+    [34mcreated_at[39m: "[32m2025-07-01 01:40:55[39m",
+    [34mupdated_at[39m: "[32m2025-07-01 01:40:55[39m",
+    [34muser_id[39m: [36mnull[39m,
+  }
+

@@ -99,9 +99,9 @@
                                     <a class="nav-link {{ request()->routeIs('penjual.stock.*') ? 'active' : '' }}" href="{{ route('penjual.stock.index') }}">
                                         <i class="fas fa-boxes me-2"></i> Stok
                                     </a>
-                                    <a class="nav-link {{ request()->routeIs('penjual.feedback.*') ? 'active' : '' }}" href="{{ route('penjual.feedback.index') }}">
+                                    {{-- <a class="nav-link {{ request()->routeIs('penjual.feedback.*') ? 'active' : '' }}" href="{{ route('penjual.feedback.index') }}">
                                         <i class="fas fa-comments me-2"></i> Feedback
-                                    </a>
+                                    </a> --}}
                                @elseif(Auth::user()->role === 'owner')
         <a class="nav-link {{ request()->routeIs('owner.dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}">
             <i class="fas fa-home me-2"></i> Dashboard
@@ -115,9 +115,9 @@
         <a class="nav-link {{ request()->routeIs('owner.menus') ? 'active' : '' }}" href="{{ route('owner.menus') }}">
             <i class="fas fa-utensils me-2"></i> Kelola Harga Menu
         </a>
-        <a class="nav-link {{ request()->routeIs('owner.feedback') ? 'active' : '' }}" href="{{ route('owner.feedback') }}">
+        {{-- <a class="nav-link {{ request()->routeIs('owner.feedback') ? 'active' : '' }}" href="{{ route('owner.feedback') }}">
             <i class="fas fa-comments me-2"></i> Feedback Konsumen
-        </a>
+        </a> --}}
         <a class="nav-link {{ request()->routeIs('owner.outlets') ? 'active' : '' }}" href="{{ route('owner.outlets') }}">
             <i class="fas fa-store me-2"></i> Monitoring Outlet/Gerobak
         </a>
@@ -168,5 +168,6 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+@stack('scripts')
 </body>
 </html>

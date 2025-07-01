@@ -140,6 +140,7 @@ Route::middleware(['auth', 'role:owner', 'verified'])->prefix('owner')->name('ow
     // Monitoring Outlet/Gerobak
     Route::get('/outlets', [OwnerOutletController::class, 'index'])->name('outlets');
     Route::patch('/outlets/{outlet}/assign-penjual', [OwnerOutletController::class, 'assignPenjual'])->name('outlets.assignPenjual');
+    Route::patch('/outlets/{outlet}/toggle-active', [OwnerOutletController::class, 'toggleActive'])->name('outlets.toggleActive');
 });
 
 // ===========================================
