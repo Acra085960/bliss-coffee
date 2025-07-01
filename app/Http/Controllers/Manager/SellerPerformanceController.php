@@ -10,19 +10,16 @@ class SellerPerformanceController extends Controller
 {
     public function index()
     {
-        // Ambil semua penjual beserta jumlah pesanan dan total penjualan
+        // Ambil semua penjual beserta jumlah pesanan
         $sellers = User::where('role', 'penjual')
-            ->withCount(['orders'])
-            ->with(['orders' => function($q) {
-                $q->select('user_id', DB::raw('SUM(total_price) as total_sales'))
-                  ->groupBy('user_id');
-            }])
+            ->withCount('orders')
             ->get();
 
         // Tambahkan total_sales dan average_rating ke setiap seller
         foreach ($sellers as $seller) {
-            $seller->total_sales = $seller->orders->sum('total_price');
-            // Jika ada fitur rating, misal relasi: $seller->feedbacks()->avg('rating')
+            // Total penjualan (sum total_price dari semua order penjual ini)
+            $seller->total_sales = $seller->orders()->sum('total_price');
+            // Rata-rata rating (jika ada relasi feedbacks)
             $seller->average_rating = $seller->feedbacks()->avg('rating') ?? null;
         }
 

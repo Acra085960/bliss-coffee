@@ -61,4 +61,9 @@ class Stock extends Model
         if ($this->maximum_stock <= 0) return 0;
         return ($this->current_stock / $this->maximum_stock) * 100;
     }
+
+    public function outlet()
+{
+    return $this->belongsTo(\App\Models\Outlet::class);
+}
 }

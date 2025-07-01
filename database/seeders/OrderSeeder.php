@@ -43,19 +43,23 @@ class OrderSeeder extends Seeder
         $hasOrderNumber = Schema::hasColumn('orders', 'order_number');
         $hasPaymentMethod = Schema::hasColumn('orders', 'payment_method');
         $hasPaymentStatus = Schema::hasColumn('orders', 'payment_status');
+        $outlets = \App\Models\Outlet::all();
 
         // Create sample orders
         foreach ($customers as $customer) {
             for ($i = 0; $i < 2; $i++) {
-                // Create order with available fields
-                $orderData = [
-                    'user_id' => $customer->id,
-                    'customer_name' => $customer->name,
-                    'customer_phone' => '08123456789',
-                    'total_price' => 0,
-                    'status' => collect(['pending', 'processing', 'completed'])->random(),
-                    'notes' => 'Sample order ' . ($i + 1),
-                ];
+               $outlet = $outlets->random();
+
+                    $orderData = [
+                        'user_id' => $customer->id,
+                        'outlet_id' => $outlet->id, // <-- tambahkan ini!
+                        'customer_name' => $customer->name,
+                        'customer_phone' => '08123456789',
+                        'total_price' => 0,
+                        'status' => collect(['pending', 'processing', 'completed'])->random(),
+                        'notes' => 'Sample order ' . ($i + 1),
+                        // ...lanjutan field lain...
+                    ];
 
                 // Add optional fields if columns exist
                 if ($hasOrderNumber) {

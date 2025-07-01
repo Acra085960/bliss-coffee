@@ -8,8 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** 
      * Menggunakan trait HasFactory dan Notifiable serta HasRoles untuk manajemen role.
@@ -58,16 +59,33 @@ class User extends Authenticatable
 
 public function orders()
 {
-    return $this->hasMany(\App\Models\Order::class);
+    return $this->hasManyThrough(
+        \App\Models\Order::class,
+        \App\Models\Outlet::class,
+        'user_id',    // Foreign key di Outlet
+        'outlet_id',  // Foreign key di Order
+        'id',         // Local key di User
+        'id'          // Local key di Outlet
+    );
 }
-
-public function feedbacks()
-{
-    return $this->hasMany(\App\Models\Feedback::class);
+public function feedbacks() {
+    return $this->hasMany(\App\Models\Feedback::class, 'user_id');
 }
 
 public function outlets()
 {
     return $this->hasMany(Outlet::class);
+}
+
+public function stocks()
+{
+    return $this->hasManyThrough(
+        \App\Models\Stock::class,
+        \App\Models\Outlet::class,
+        'user_id',    // Foreign key di Outlet
+        'outlet_id',  // Foreign key di Stock
+        'id',         // Local key di User
+        'id'          // Local key di Outlet
+    );
 }
 }

@@ -245,7 +245,7 @@
                                 @foreach($recentMovements as $movement)
                                 <tr>
                                     <td>{{ $movement->created_at->format('H:i d/m') }}</td>
-                                    <td>{{ $movement->stock->name }}</td>
+                                    <td>{{ $movement->stock->name ?? '-' }}</td>
                                     <td>
                                         <span class="badge bg-{{ $movement->type == 'in' ? 'success' : ($movement->type == 'out' ? 'warning' : 'info') }}">
                                             {{ ucfirst($movement->type) }}
@@ -253,7 +253,7 @@
                                     </td>
                                     <td>{{ $movement->quantity }} {{ $movement->stock->unit }}</td>
                                     <td>{{ $movement->reason }}</td>
-                                    <td>{{ $movement->user->name }}</td>
+                                    <td>{{ $movement->user->name ?? '-' }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>

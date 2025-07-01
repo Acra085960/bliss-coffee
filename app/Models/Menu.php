@@ -37,6 +37,11 @@ class Menu extends Model
         return $this->hasMany(\App\Models\OrderDetail::class, 'menu_id');
     }
 
+    public function orderItems()
+{
+    return $this->hasMany(\App\Models\OrderItem::class, 'menu_id');
+}
+
     // Relasi ke penjual
     public function seller()
     {

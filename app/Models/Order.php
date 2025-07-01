@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Http\Controllers\Customer\Outlet;
 
 class Order extends Model
 {
@@ -59,4 +60,10 @@ class Order extends Model
     {
         return $this->feedback()->exists();
     }
+
+
+public function outlet()
+{
+    return $this->belongsTo(\App\Models\Outlet::class, 'outlet_id');
+}
 }

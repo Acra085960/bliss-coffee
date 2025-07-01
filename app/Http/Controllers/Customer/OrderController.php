@@ -91,7 +91,7 @@ class OrderController extends Controller
         }
         
         // Show form to enter order number
-        return view('customer.track-order-form');
+        return redirect()->route('customer.dashboard')->with('error', 'Nomor pesanan tidak ditemukan!');
     }
 
     public function getOrderStatus(Request $request)

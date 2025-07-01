@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
@@ -47,6 +48,23 @@ require __DIR__.'/auth.php';
 // General authenticated route (optional dashboard redirect)
 // ===========================================
 Route::middleware(['auth'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+// Email Verification Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('login')->with('success', 'Email berhasil diverifikasi! Silakan login.');
+    })->middleware(['signed'])->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('message', 'Verification link sent!');
+    })->middleware(['throttle:6,1'])->name('verification.send');
+});
 
 // ===========================================
 // Role: Penjual (Seller)
@@ -134,6 +152,7 @@ Route::middleware(['auth', 'role:manajer', 'verified'])
         Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
         Route::get('/sales/analysis', [SalesAnalysisController::class, 'index'])->name('sales.analysis');
         Route::get('/stocks', [StockController::class, 'index'])->name('stocks.index');
+        Route::post('/stocks/{stock}/update', [StockController::class, 'update'])->name('stocks.update');
         Route::get('/sellers/performance', [SellerPerformanceController::class, 'index'])->name('sellers.performance');
         Route::get('/topmenus', [TopMenusController::class, 'index'])->name('topmenus');
         Route::get('/sales/export', [SalesExportController::class, 'index'])->name('sales.export');

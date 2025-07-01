@@ -5,12 +5,21 @@ namespace Database\Seeders;
 use App\Models\Stock;
 use App\Models\StockMovement;
 use App\Models\User;
+use App\Models\Outlet;
 use Illuminate\Database\Seeder;
 
 class StockSeeder extends Seeder
 {
     public function run(): void
     {
+        $outlets = Outlet::all();
+
+    // Pastikan jumlah outlet cukup
+    if ($outlets->count() < 6) {
+        $this->command->error('Minimal harus ada 6 outlet di tabel outlets sebelum menjalankan StockSeeder.');
+        return;
+    }
+    
         $stocks = [
             [
                 'name' => 'Kopi Arabica',
@@ -22,6 +31,7 @@ class StockSeeder extends Seeder
                 'price_per_unit' => 150000,
                 'description' => 'Biji kopi arabica premium',
                 'is_active' => true,
+                'outlet_id' => $outlets[0]->id ?? null, 
             ],
             [
                 'name' => 'Kopi Robusta',
@@ -33,6 +43,7 @@ class StockSeeder extends Seeder
                 'price_per_unit' => 120000,
                 'description' => 'Biji kopi robusta lokal',
                 'is_active' => true,
+                'outlet_id' => $outlets[1]->id ?? null, // gunakan id outlet pertama
             ],
             [
                 'name' => 'Susu Full Cream',
@@ -44,6 +55,7 @@ class StockSeeder extends Seeder
                 'price_per_unit' => 18000,
                 'description' => 'Susu segar full cream',
                 'is_active' => true,
+                'outlet_id' => $outlets[2]->id ?? null, // gunakan id outlet pertama
             ],
             [
                 'name' => 'Gula Pasir',
@@ -55,6 +67,7 @@ class StockSeeder extends Seeder
                 'price_per_unit' => 15000,
                 'description' => 'Gula pasir putih',
                 'is_active' => true,
+                'outlet_id' => $outlets[3]->id ?? null, // gunakan id outlet pertama
             ],
             [
                 'name' => 'Cup Paper 8oz',
@@ -66,6 +79,7 @@ class StockSeeder extends Seeder
                 'price_per_unit' => 300,
                 'description' => 'Cup kertas ukuran 8oz',
                 'is_active' => true,
+                'outlet_id' => $outlets[4]->id ?? null, // gunakan id outlet pertama
             ],
             [
                 'name' => 'Whipped Cream',
@@ -77,6 +91,7 @@ class StockSeeder extends Seeder
                 'price_per_unit' => 45000,
                 'description' => 'Krim kocok untuk topping',
                 'is_active' => true,
+                'outlet_id' => $outlets[5]->id ?? null, // gunakan id outlet pertama
             ]
         ];
 

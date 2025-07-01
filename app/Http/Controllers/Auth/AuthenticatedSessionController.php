@@ -24,15 +24,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
-        $request->session()->regenerate();
+    $request->authenticate();
+    $request->session()->regenerate();
 
-        $user = auth()->user();
-        
-        // Assign role using Spatie Permission if not already assigned
-        if (!$user->hasAnyRole(['pembeli', 'penjual', 'manajer', 'owner'])) {
-            $user->assignRole($user->role);
-        }
+    $user = auth()->user();
+
+    // Check if email is verified
+    if (is_null($user->email_verified_at)) {
+        Auth::logout();
+        return redirect()->route('login')->withErrors([
+            'email' => 'Please verify your email address before logging in.',
+        ]);
+    }
 
         // Redirect based on role
         switch ($user->role) {

@@ -63,24 +63,7 @@
 
     <!-- Quick Order Tracking -->
     <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Lacak Pesanan</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('customer.track-order') }}" method="GET">
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="orderNumber" 
-                                   placeholder="Masukkan nomor pesanan (contoh: BC-20231201-ABC123)">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-search me-1"></i>Lacak
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+
         <div class="col-md-6">
             <!-- Recent active orders -->
             @php

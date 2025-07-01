@@ -23,4 +23,9 @@ public function orders()
 {
     return $this->hasMany(\App\Models\Order::class);
 }
+
+public function stocks()
+{
+    return $this->hasMany(\App\Models\Stock::class);
+}
 }

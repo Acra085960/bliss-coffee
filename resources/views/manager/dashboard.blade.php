@@ -46,7 +46,7 @@
         overflow-x: auto;
     }
 </style>
-@endpush\
+@endpush
 
 @section('content')
 <div class="container">

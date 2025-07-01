@@ -1,7 +1,6 @@
 {{-- filepath: /home/acra/bliss/resources/views/manager/performance.blade.php --}}
 @extends('layouts.app')
 
-
 @push('styles')
 <style>
     @media (max-width: 767.98px) {

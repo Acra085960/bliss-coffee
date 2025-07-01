@@ -52,14 +52,14 @@ class DashboardController extends Controller
     // Kinerja penjual minggu ini
     $sellerPerformance = \App\Models\User::where('role', 'penjual')
         ->withCount(['orders' => function($q) use ($startOfWeek) {
-            $q->where('created_at', '>=', $startOfWeek)->where('status', 'selesai');
+            $q->where('orders.created_at', '>=', $startOfWeek)->where('status', 'selesai');
         }])->get();
 
     // Laporan singkat
     $totalRevenueWeek = \App\Models\Order::where('created_at', '>=', $startOfWeek)
         ->where('status', 'selesai')->sum('total_price');
-    $avgOrderPerDay = \App\Models\Order::where('created_at', '>=', $startOfWeek)
-        ->count() / now()->diffInDays($startOfWeek->copy()->addWeek());
+$days = now()->diffInDays($startOfWeek->copy()->addWeek());
+$avgOrderPerDay = $days > 0 ? (\App\Models\Order::where('created_at', '>=', $startOfWeek)->count() / $days) : 0;
 
     return view('manager.dashboard', compact(
         'totalSalesToday', 'totalOrdersToday', 'outOfStockMenus', 'lowStockIngredients',

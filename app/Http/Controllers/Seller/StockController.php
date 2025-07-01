@@ -169,7 +169,6 @@ class StockController extends Controller
                           ->orderBy('created_at', 'desc')
                           ->paginate(20);
         
-        return view('penjual.stock.movements', compact('stock', 'movements'));
     }
 
     public function lowStock()
@@ -179,7 +178,6 @@ class StockController extends Controller
                          ->orderBy('current_stock', 'asc')
                          ->get();
         
-        return view('penjual.stock.low-stock', compact('lowStocks'));
     }
 
     public function bulkUpdate(Request $request)
