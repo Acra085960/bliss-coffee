@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\TwilioService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,23 +33,58 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['required', 'string', 'regex:/^([0-9\s\-\+\(\)]*)$/', 'min:10'],
+            'verification_method' => ['required', 'in:email,whatsapp'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        // Format phone number
+        $phone = preg_replace('/[^0-9]/', '', $request->phone);
+        if (substr($phone, 0, 1) === '0') {
+            $phone = '62' . substr($phone, 1);
+        } elseif (substr($phone, 0, 2) !== '62') {
+            $phone = '62' . $phone;
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $phone,
             'password' => Hash::make($request->password),
-            'role' => 'pembeli', // Default role for registration is customer
+            'role' => 'pembeli',
         ]);
 
         // Assign role using Spatie Permission
         $user->assignRole('pembeli');
 
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return redirect()->route('customer.dashboard');
+        // Handle verification based on chosen method
+        if ($request->verification_method === 'whatsapp') {
+            // Send WhatsApp verification
+            try {
+                $twilioService = app(TwilioService::class);
+                $result = $twilioService->sendWhatsAppVerification($phone);
+                
+                if ($result['success']) {
+                    session(['phone_verification_user_id' => $user->id]);
+                    return redirect()->route('phone.verification.show')
+                        ->with('success', 'WhatsApp verification code sent to your phone!');
+                } else {
+                    // Fallback to email if WhatsApp fails
+                    event(new Registered($user));
+                    return redirect()->route('verification.notice')
+                        ->with('warning', 'WhatsApp verification failed. Email verification sent instead.');
+                }
+            } catch (\Exception $e) {
+                // Fallback to email verification
+                event(new Registered($user));
+                return redirect()->route('verification.notice')
+                    ->with('warning', 'WhatsApp verification unavailable. Email verification sent.');
+            }
+        } else {
+            // Email verification
+            event(new Registered($user));
+            return redirect()->route('verification.notice')
+                ->with('success', 'Registration successful! Please check your email for verification.');
+        }
     }
 }

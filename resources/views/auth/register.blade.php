@@ -133,6 +133,36 @@
                     @enderror
                 </div>
 
+                <!-- Phone Number -->
+                <div class="form-outline mb-4">
+                    <input type="tel" id="phone" name="phone"
+                        class="form-control form-control-lg"
+                        value="{{ old('phone') }}" required 
+                        placeholder="08123456789"/>
+                    <label class="form-label" for="phone">Phone Number (WhatsApp)</label>
+                    @error('phone')
+                        <div class="text-danger mt-1 small">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Verification Method -->
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="verification_method">Choose Verification Method</label>
+                    <select id="verification_method" name="verification_method" 
+                            class="form-control form-control-lg" required>
+                        <option value="">Select verification method</option>
+                        <option value="email" {{ old('verification_method') == 'email' ? 'selected' : '' }}>
+                            Email Verification
+                        </option>
+                        <option value="whatsapp" {{ old('verification_method') == 'whatsapp' ? 'selected' : '' }}>
+                            WhatsApp Verification
+                        </option>
+                    </select>
+                    @error('verification_method')
+                        <div class="text-danger mt-1 small">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <!-- Password -->
                 <div class="form-outline mb-4">
                     <input type="password" id="password" name="password"

@@ -25,6 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'phone_verified_at',
         'password',
         'role', // Menambahkan 'role' ke dalam fillable
         'is_active',

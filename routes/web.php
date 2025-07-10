@@ -4,6 +4,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PhoneVerificationController;
 
 // Seller Controllers
 use App\Http\Controllers\Seller\DashboardController as SellerDashboardController;
@@ -64,6 +65,14 @@ Route::middleware(['auth'])->group(function () {
         $request->user()->sendEmailVerificationNotification();
         return back()->with('message', 'Verification link sent!');
     })->middleware(['throttle:6,1'])->name('verification.send');
+});
+
+// Phone Verification Routes
+Route::middleware(['guest'])->group(function () {
+    Route::get('/phone/verify', [PhoneVerificationController::class, 'show'])->name('phone.verification.show');
+    Route::post('/phone/verify', [PhoneVerificationController::class, 'verify'])->name('phone.verification.verify');
+    Route::post('/phone/resend', [PhoneVerificationController::class, 'resend'])->name('phone.verification.resend');
+    Route::post('/phone/send', [PhoneVerificationController::class, 'send'])->name('phone.verification.send');
 });
 
 // ===========================================
