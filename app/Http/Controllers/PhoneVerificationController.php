@@ -82,7 +82,30 @@ class PhoneVerificationController extends Controller
                 ->with('error', 'User not found. Please register again.');
         }
 
-        // Verify the code
+        // Check if in demo mode (Twilio not configured)
+        if (session('demo_mode')) {
+            // In demo mode, accept any 6-digit code
+            $code = $request->verification_code;
+            if (strlen($code) === 6 && is_numeric($code)) {
+                // Mark phone as verified
+                $user->update([
+                    'phone_verified_at' => now(),
+                ]);
+
+                // Clear sessions
+                session()->forget(['phone_verification_user_id', 'demo_mode']);
+
+                // Log the user in
+                Auth::login($user);
+
+                return redirect()->route('customer.dashboard')
+                    ->with('success', 'Phone verified successfully! Welcome to Bliss Coffee!');
+            } else {
+                return back()->with('error', 'Please enter a valid 6-digit code');
+            }
+        }
+
+        // Normal mode - verify with Twilio
         $result = $this->twilioService->verifyCode($user->phone, $request->verification_code);
 
         if ($result['success']) {
@@ -119,6 +142,11 @@ class PhoneVerificationController extends Controller
         if (!$user) {
             return redirect()->route('login')
                 ->with('error', 'User not found. Please register again.');
+        }
+
+        // Check if in demo mode
+        if (session('demo_mode')) {
+            return back()->with('info', 'Demo mode: Enter any 6-digit code to continue');
         }
 
         // Send new verification code

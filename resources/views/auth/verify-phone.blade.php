@@ -134,12 +134,22 @@
             <hr class="verify-separator">
             <div class="verify-title">WhatsApp Verification</div>
             <p class="text-center" style="color:#fff; margin-bottom:18px;">
-                We've sent a verification code to your WhatsApp. Please enter the code below.
+                @if(session('demo_mode'))
+                    Demo mode: Enter any 6-digit code to continue testing.
+                @else
+                    We've sent a verification code to your WhatsApp. Please enter the code below.
+                @endif
             </p>
 
             @if (session('success'))
                 <div style="color:#28a745; margin-bottom:12px; text-align:center;">
                     {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('info'))
+                <div style="color:#17a2b8; margin-bottom:12px; text-align:center;">
+                    {{ session('info') }}
                 </div>
             @endif
 

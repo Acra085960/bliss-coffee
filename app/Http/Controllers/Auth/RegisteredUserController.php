@@ -59,6 +59,19 @@ class RegisteredUserController extends Controller
 
         // Handle verification based on chosen method
         if ($request->verification_method === 'whatsapp') {
+            // Check if Twilio is properly configured
+            $twilioSid = config('services.twilio.account_sid');
+            $twilioToken = config('services.twilio.auth_token');
+            
+            if ($twilioSid === 'your_twilio_account_sid_here' || $twilioToken === 'your_twilio_auth_token_here' || 
+                empty($twilioSid) || empty($twilioToken)) {
+                // Twilio not configured, go directly to phone verification page for demo
+                session(['phone_verification_user_id' => $user->id]);
+                session(['demo_mode' => true]); // Flag for demo mode
+                return redirect()->route('phone.verification.show')
+                    ->with('info', 'Demo mode: Enter any 6-digit code to continue (Twilio not configured)');
+            }
+            
             // Send WhatsApp verification
             try {
                 $twilioService = app(TwilioService::class);
@@ -75,10 +88,14 @@ class RegisteredUserController extends Controller
                         ->with('warning', 'WhatsApp verification failed. Email verification sent instead.');
                 }
             } catch (\Exception $e) {
+                // Log the error for debugging
+                \Log::error('Twilio WhatsApp verification failed: ' . $e->getMessage());
+                
                 // Fallback to email verification
                 event(new Registered($user));
                 return redirect()->route('verification.notice')
                     ->with('warning', 'WhatsApp verification unavailable. Email verification sent.');
+            }
             }
         } else {
             // Email verification
