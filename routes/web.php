@@ -136,7 +136,7 @@ Route::middleware(['auth', 'role:owner', 'verified.flexible'])->prefix('owner')-
     Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
     // Laporan Penjualan
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     // ===== Tambahkan route export di bawah ini =====
     Route::get('/reports/export/{type}', [ReportController::class, 'export'])->name('reports.export');
     // ==============================================

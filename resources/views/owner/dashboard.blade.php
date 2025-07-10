@@ -238,7 +238,9 @@
                     <a href="{{ route('owner.employees') }}" class="btn btn-outline-primary m-1">Kelola Pegawai</a>
                     <a href="{{ route('owner.menus') }}" class="btn btn-outline-info m-1">Kelola Harga Menu</a>
                     <a href="{{ route('owner.outlets') }}" class="btn btn-outline-warning m-1">Lihat Semua Outlet</a>
-                    <a href="{{ route('owner.reports.export', ['type' => 'csv']) }}" class="btn btn-outline-success m-1">Ekspor Laporan</a>
+                    <a href="{{ route('owner.reports.index') }}" class="btn btn-outline-secondary m-1">Laporan Penjualan</a>
+                    <a href="{{ route('owner.reports.export', ['type' => 'csv']) }}" class="btn btn-outline-success m-1">Ekspor CSV</a>
+                    <a href="{{ route('owner.reports.export', ['type' => 'pdf']) }}" class="btn btn-outline-danger m-1">Ekspor PDF</a>
                 </div>
             </div>
         </div>

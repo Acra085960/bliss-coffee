@@ -109,7 +109,7 @@
         <a class="nav-link {{ request()->routeIs('owner.employees') ? 'active' : '' }}" href="{{ route('owner.employees') }}">
             <i class="fas fa-users me-2"></i> Karyawan & Manajer
         </a>
-        <a class="nav-link {{ request()->routeIs('owner.reports') ? 'active' : '' }}" href="{{ route('owner.reports') }}">
+        <a class="nav-link {{ request()->routeIs('owner.reports.*') ? 'active' : '' }}" href="{{ route('owner.reports.index') }}">
             <i class="fas fa-chart-bar me-2"></i> Laporan Penjualan
         </a>
         <a class="nav-link {{ request()->routeIs('owner.menus') ? 'active' : '' }}" href="{{ route('owner.menus') }}">
