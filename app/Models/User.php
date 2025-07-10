@@ -51,8 +51,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime', // Menentukan casting untuk email_verified_at
-            'password' => 'hashed',           // Menandakan password harus di-hash
+            'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
+            'password' => 'hashed',
         ];
     }
     public function menus()
