@@ -59,6 +59,7 @@ class RegisteredUserController extends Controller
 
         // Handle verification based on chosen method
         if ($request->verification_method === 'whatsapp') {
+            // WhatsApp verification only - no email fallback
             // Check if Twilio is properly configured
             $twilioSid = config('services.twilio.account_sid');
             $twilioToken = config('services.twilio.auth_token');
@@ -82,22 +83,22 @@ class RegisteredUserController extends Controller
                     return redirect()->route('phone.verification.show')
                         ->with('success', 'WhatsApp verification code sent to your phone!');
                 } else {
-                    // Fallback to email if WhatsApp fails
-                    event(new Registered($user));
-                    return redirect()->route('verification.notice')
-                        ->with('warning', 'WhatsApp verification failed. Email verification sent instead.');
+                    // No fallback - show error and delete user
+                    $user->delete();
+                    return back()->withErrors(['verification' => 'Failed to send WhatsApp verification code. Please try again.'])
+                        ->withInput();
                 }
             } catch (\Exception $e) {
                 // Log the error for debugging
                 \Log::error('Twilio WhatsApp verification failed: ' . $e->getMessage());
                 
-                // Fallback to email verification
-                event(new Registered($user));
-                return redirect()->route('verification.notice')
-                    ->with('warning', 'WhatsApp verification unavailable. Email verification sent.');
+                // No fallback - show error and delete user
+                $user->delete();
+                return back()->withErrors(['verification' => 'WhatsApp verification service is currently unavailable. Please try again later.'])
+                    ->withInput();
             }
         } else {
-            // Email verification
+            // Email verification only - no phone verification required
             event(new Registered($user));
             return redirect()->route('verification.notice')
                 ->with('success', 'Registration successful! Please check your email for verification.');

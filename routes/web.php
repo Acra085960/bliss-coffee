@@ -78,7 +78,7 @@ Route::middleware(['guest'])->group(function () {
 // ===========================================
 // Role: Penjual (Seller)
 // ===========================================
-Route::middleware(['auth', 'role:penjual', 'verified'])->prefix('penjual')->name('penjual.')->group(function () {
+Route::middleware(['auth', 'role:penjual', 'verified.flexible'])->prefix('penjual')->name('penjual.')->group(function () {
     Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
@@ -101,7 +101,7 @@ Route::middleware(['auth', 'role:penjual', 'verified'])->prefix('penjual')->name
 // ===========================================
 // Role: Pembeli (Buyer)
 // ===========================================
-Route::middleware(['auth', 'role:pembeli', 'verified'])->prefix('customer')->name('customer.')->group(function () {
+Route::middleware(['auth', 'role:pembeli', 'verified.flexible'])->prefix('customer')->name('customer.')->group(function () {
     Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
     Route::get('/menu', [MenuController::class, 'index'])->name('menu');
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
@@ -126,7 +126,7 @@ Route::middleware(['auth', 'role:pembeli', 'verified'])->prefix('customer')->nam
 // ===========================================
 // Role: Owner
 // ===========================================
-Route::middleware(['auth', 'role:owner', 'verified'])->prefix('owner')->name('owner.')->group(function () {
+Route::middleware(['auth', 'role:owner', 'verified.flexible'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
     // Kelola Pegawai/Manajer
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
@@ -155,7 +155,7 @@ Route::middleware(['auth', 'role:owner', 'verified'])->prefix('owner')->name('ow
 // ===========================================
 // Role: Manajer (Manager)
 // ===========================================
-Route::middleware(['auth', 'role:manajer', 'verified'])
+Route::middleware(['auth', 'role:manajer', 'verified.flexible'])
     ->prefix('manager')
     ->name('manager.')
     ->group(function () {

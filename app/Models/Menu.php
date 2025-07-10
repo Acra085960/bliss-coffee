@@ -25,6 +25,58 @@ class Menu extends Model
         'is_available' => 'boolean',
     ];
 
+    /**
+     * Accessor untuk image dengan default
+     */
+    public function getImageUrlAttribute()
+    {
+        if ($this->image && file_exists(public_path('images/menu/' . $this->image))) {
+            return asset('images/menu/' . $this->image);
+        }
+        
+        // Default image berdasarkan kategori atau nama menu
+        $defaultImages = [
+            'coffee' => 'latte.jpg',
+            'tea' => 'green_tea.jpg', 
+            'food' => 'sandwich.jpg',
+            'dessert' => 'cheesecake.jpg'
+        ];
+        
+        $category = strtolower($this->category ?? '');
+        $name = strtolower($this->name ?? '');
+        
+        // Pilih default image berdasarkan kategori atau nama
+        if (str_contains($name, 'coffee') || str_contains($name, 'espresso') || str_contains($name, 'latte')) {
+            $defaultImage = 'latte.jpg';
+        } elseif (str_contains($name, 'tea')) {
+            $defaultImage = 'green_tea.jpg';
+        } elseif (str_contains($name, 'sandwich') || str_contains($name, 'burger')) {
+            $defaultImage = 'sandwich.jpg';
+        } else {
+            $defaultImage = 'latte.jpg'; // default fallback
+        }
+        
+        return asset('images/menu/' . $defaultImage);
+    }
+
+    /**
+     * Scope untuk menu yang tersedia saja (performance)
+     */
+    public function scopeAvailable($query)
+    {
+        return $query->where('is_available', true);
+    }
+
+    /**
+     * Scope untuk dashboard (minimal fields, performance)
+     */
+    public function scopeForDashboard($query)
+    {
+        return $query->select('id', 'name', 'price', 'image', 'description', 'is_available')
+                    ->available()
+                    ->limit(4);
+    }
+
     // Relasi ke orders (pivot)
     public function orders()
     {

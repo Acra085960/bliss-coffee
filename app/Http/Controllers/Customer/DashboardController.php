@@ -12,22 +12,27 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $recentOrders = Order::where('user_id', $user->id)
+        
+        // Optimized queries dengan select field minimal dan limit
+        $recentOrders = Order::select('id', 'total_price', 'status', 'created_at')
+                           ->where('user_id', $user->id)
                            ->orderBy('created_at', 'desc')
-                           ->limit(5)
+                           ->limit(3) // Kurangi dari 5 ke 3 untuk loading cepat
                            ->get();
         
-        $totalOrders = \App\Models\Order::where('user_id', auth()->id())->count();
-$totalSpent = \App\Models\Order::where('user_id', auth()->id())->sum('total_price');
+        // Optimized aggregation queries
+        $userStats = Order::where('user_id', $user->id)
+                        ->selectRaw('COUNT(*) as total_orders, COALESCE(SUM(total_price), 0) as total_spent')
+                        ->first();
         
-        // Add menu data for display
-        $menus = Menu::limit(6)->get();
+        // Optimized menu query - menggunakan scope baru untuk performance
+        $menus = Menu::forDashboard()->get();
 
-        return view('customer.dashboard', compact(
-            'recentOrders',
-            'totalOrders',
-            'totalSpent',
-            'menus'
-        ));
+        return view('customer.dashboard', [
+            'recentOrders' => $recentOrders,
+            'totalOrders' => $userStats->total_orders ?? 0,
+            'totalSpent' => $userStats->total_spent ?? 0,
+            'menus' => $menus
+        ]);
     }
 }

@@ -3,6 +3,34 @@
 
 @push('styles')
 <style>
+    /* Performance optimizations */
+    .card {
+        transition: transform 0.2s ease-in-out;
+        will-change: transform;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .card-img-top {
+        transition: opacity 0.3s ease;
+        background-color: #f8f9fa;
+    }
+    .card-img-top[loading="lazy"] {
+        opacity: 0;
+        animation: fadeIn 0.3s ease forwards;
+    }
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+    /* Loading state for buttons */
+    .btn-add-cart:disabled {
+        opacity: 0.7;
+    }
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+    }
+    
     @media (max-width: 767.98px) {
         .container, .container-fluid {
             padding-left: 0.5rem !important;
@@ -236,7 +264,7 @@
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-outline-danger" 
                                             onclick="return confirm('Batalkan pesanan {{ $activeOrder->order_number }}?')">
-                                        <i class="fas fa-times"></i>
+                                        Batalkan Pesanan
                                     </button>
                                 </form>
                                 @endif
@@ -317,22 +345,20 @@
     </h2>
     <div class="row">
         @foreach ($menus as $menu)
-            <div class="col-md-4">
+            <div class="col-md-3 col-sm-6">
                 <div class="card mb-3">
-                    @if($menu->image)
-                        <img src="{{ asset('images/'.$menu->image) }}" class="card-img-top" alt="{{ $menu->name }}" style="height: 200px; object-fit: cover;">
-                    @else
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <span class="text-muted">
-                                <i class="fas fa-image fa-3x"></i><br>
-                                No Image
-                            </span>
-                        </div>
-                    @endif
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $menu->name }}</h5>
-                        <p class="card-text">{{ $menu->description ?? 'Deskripsi tidak tersedia' }}</p>
-                        <p class="card-text">
+                    <img src="{{ $menu->image_url }}" 
+                         class="card-img-top" 
+                         alt="{{ $menu->name }}" 
+                         style="height: 180px; object-fit: cover;"
+                         loading="lazy"
+                         onerror="this.src='{{ asset('images/menu/latte.jpg') }}'">
+                    <div class="card-body p-3">
+                        <h6 class="card-title mb-2">{{ $menu->name }}</h6>
+                        <p class="card-text small text-muted mb-2" style="height: 40px; overflow: hidden;">
+                            {{ Str::limit($menu->description ?? 'Delicious menu item', 60) }}
+                        </p>
+                        <p class="card-text mb-3">
                             <strong class="text-success">Rp {{ number_format($menu->price, 0, ',', '.') }}</strong>
                         </p>
                         
@@ -342,18 +368,17 @@
                             @csrf
                             <input type="hidden" name="menu_id" value="{{ $menu->id }}">
                             <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn btn-primary btn-add-cart">
+                            <button type="submit" class="btn btn-primary btn-sm w-100 btn-add-cart">
                                 <span class="btn-text">
-                                    <i class="fas fa-cart-plus me-1"></i>Tambah ke Keranjang
+                                    <i class="fas fa-cart-plus me-1"></i>Tambah
                                 </span>
                                 <span class="btn-loading d-none">
                                     <span class="spinner-border spinner-border-sm" role="status"></span>
-                                    Menambahkan...
                                 </span>
                             </button>
                         </form>
                         @else
-                        <button class="btn btn-secondary" disabled>
+                        <button class="btn btn-secondary btn-sm w-100" disabled>
                             <i class="fas fa-times me-1"></i>Tidak Tersedia
                         </button>
                         @endif
@@ -381,28 +406,56 @@
 </div>
 
 <script>
+// Optimized JavaScript for better performance
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle add to cart form submissions
+    // Handle image lazy loading and fade in effect
+    const images = document.querySelectorAll('img[loading="lazy"]');
+    images.forEach(img => {
+        img.addEventListener('load', function() {
+            this.style.opacity = '1';
+        });
+    });
+    
+    // Optimized add to cart handler with debouncing
     const forms = document.querySelectorAll('.add-to-cart-form');
+    let isSubmitting = false;
     
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
+            // Prevent multiple rapid submissions
+            if (isSubmitting) {
+                e.preventDefault();
+                return;
+            }
+            
+            isSubmitting = true;
             const button = this.querySelector('.btn-add-cart');
             const btnText = button.querySelector('.btn-text');
             const btnLoading = button.querySelector('.btn-loading');
             
-            // Show loading state
+            // Show loading state immediately
             button.disabled = true;
             btnText.classList.add('d-none');
             btnLoading.classList.remove('d-none');
             
-            // Re-enable button after 3 seconds (fallback)
+            // Reset after 2 seconds (reduced from 3)
             setTimeout(() => {
                 button.disabled = false;
                 btnText.classList.remove('d-none');
                 btnLoading.classList.add('d-none');
-            }, 3000);
+                isSubmitting = false;
+            }, 2000);
         });
+    });
+    
+    // Performance optimization: Preload critical images
+    const preloadImages = ['latte.jpg', 'green_tea.jpg', 'sandwich.jpg'];
+    preloadImages.forEach(img => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = `/images/menu/${img}`;
+        document.head.appendChild(link);
     });
 });
 </script>

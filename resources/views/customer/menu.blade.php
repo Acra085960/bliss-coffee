@@ -90,23 +90,12 @@
             <div class="card">
                 <div class="card-body">
                     <form method="GET" action="{{ route('customer.menu') }}" class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <label class="form-label">Cari Menu</label>
                             <input type="text" class="form-control" name="search" 
                                    value="{{ $search }}" placeholder="Cari nama menu atau deskripsi...">
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Kategori</label>
-                            <select class="form-select" name="category">
-                                <option value="">Semua Kategori</option>
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat }}" {{ $category == $cat ? 'selected' : '' }}>
-                                        {{ $cat }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-3 d-flex align-items-end">
+                        <div class="col-md-4 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary me-2">
                                 <i class="fas fa-search"></i> Cari
                             </button>
@@ -116,24 +105,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Category Quick Filter -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="d-flex flex-wrap gap-2">
-                <a href="{{ route('customer.menu') }}" 
-                   class="btn btn-outline-primary {{ !$category ? 'active' : '' }}">
-                    Semua Menu
-                </a>
-                @foreach($categories as $cat)
-                    <a href="{{ route('customer.menu', ['category' => $cat]) }}" 
-                       class="btn btn-outline-primary {{ $category == $cat ? 'active' : '' }}">
-                        {{ $cat }}
-                    </a>
-                @endforeach
             </div>
         </div>
     </div>
@@ -205,17 +176,10 @@
                         </p>
                         
                         <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="mb-3">
                                 <h4 class="text-primary mb-0">
                                     Rp {{ number_format($menu->price, 0, ',', '.') }}
                                 </h4>
-                                <div class="rating text-warning">
-                                    <!-- Static rating for demo - could be dynamic -->
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star"></i>
-                                    @endfor
-                                    <small class="text-muted">(4.8)</small>
-                                </div>
                             </div>
                             
                             <!-- Add to Cart Form -->

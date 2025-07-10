@@ -152,12 +152,16 @@
                             class="form-control form-control-lg" required>
                         <option value="">Select verification method</option>
                         <option value="email" {{ old('verification_method') == 'email' ? 'selected' : '' }}>
-                            Email Verification
+                            Email Verification Only
                         </option>
                         <option value="whatsapp" {{ old('verification_method') == 'whatsapp' ? 'selected' : '' }}>
-                            WhatsApp Verification
+                            WhatsApp Verification Only
                         </option>
                     </select>
+                    <small class="text-white-50 mt-1">
+                        <strong>Email:</strong> Verify via email link only<br>
+                        <strong>WhatsApp:</strong> Verify via WhatsApp code only
+                    </small>
                     @error('verification_method')
                         <div class="text-danger mt-1 small">{{ $message }}</div>
                     @enderror
