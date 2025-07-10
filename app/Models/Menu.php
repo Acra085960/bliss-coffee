@@ -30,30 +30,58 @@ class Menu extends Model
      */
     public function getImageUrlAttribute()
     {
-        if ($this->image && file_exists(public_path('images/menu/' . $this->image))) {
-            return asset('images/menu/' . $this->image);
+        // Check if menu has an assigned image
+        if ($this->image && file_exists(public_path('images/' . $this->image))) {
+            return asset('images/' . $this->image);
         }
         
-        // Default image berdasarkan kategori atau nama menu
-        $defaultImages = [
-            'coffee' => 'latte.jpg',
-            'tea' => 'green_tea.jpg', 
-            'food' => 'sandwich.jpg',
-            'dessert' => 'cheesecake.jpg'
+        // Map menu names to available images
+        $name = strtolower(str_replace(' ', '_', $this->name ?? ''));
+        
+        $imageMapping = [
+            'espresso' => 'espresso.jpg',
+            'americano' => 'americano.jpg',
+            'cappuccino' => 'cappucino.jpeg',
+            'caffe_latte' => 'caffe_latte.jpeg',
+            'mocha' => 'mocha.jpg',
+            'iced_americano' => 'iced_americano.jpeg',
+            'iced_latte' => 'iced_latte.jpg',
+            'frappuccino' => 'frappuchinno.jpg',
+            'cold_brew' => 'cold_brew.jpeg',
+            'hot_chocolate' => 'hot_chocolate.jpeg',
+            'green_tea_latte' => 'green_tea_latte.jpg',
+            'chai_tea_latte' => 'chai_tea_latte.jpg',
+            'croissant_butter' => 'croissant_butter.jpg',
+            'sandwich_club' => 'americano.jpg', // fallback to americano for sandwich
+            'muffin_blueberry' => 'croissant_butter.jpg', // fallback to croissant for muffin
         ];
         
-        $category = strtolower($this->category ?? '');
-        $name = strtolower($this->name ?? '');
+        // Try to find exact match first
+        if (isset($imageMapping[$name])) {
+            $imagePath = 'images/menu/' . $imageMapping[$name];
+            if (file_exists(public_path($imagePath))) {
+                return asset($imagePath);
+            }
+        }
         
-        // Pilih default image berdasarkan kategori atau nama
-        if (str_contains($name, 'coffee') || str_contains($name, 'espresso') || str_contains($name, 'latte')) {
-            $defaultImage = 'latte.jpg';
+        // Fallback logic based on name patterns
+        $name = strtolower($this->name ?? '');
+        if (str_contains($name, 'americano')) {
+            $defaultImage = 'americano.jpg';
+        } elseif (str_contains($name, 'latte')) {
+            $defaultImage = 'caffe_latte.jpeg';
+        } elseif (str_contains($name, 'cappuccino')) {
+            $defaultImage = 'cappucino.jpeg';
+        } elseif (str_contains($name, 'espresso')) {
+            $defaultImage = 'espresso.jpg';
+        } elseif (str_contains($name, 'mocha')) {
+            $defaultImage = 'mocha.jpg';
         } elseif (str_contains($name, 'tea')) {
-            $defaultImage = 'green_tea.jpg';
-        } elseif (str_contains($name, 'sandwich') || str_contains($name, 'burger')) {
-            $defaultImage = 'sandwich.jpg';
+            $defaultImage = 'green_tea_latte.jpg';
+        } elseif (str_contains($name, 'hot chocolate')) {
+            $defaultImage = 'hot_chocolate.jpeg';
         } else {
-            $defaultImage = 'latte.jpg'; // default fallback
+            $defaultImage = 'americano.jpg'; // default fallback
         }
         
         return asset('images/menu/' . $defaultImage);

@@ -110,10 +110,15 @@
                                     <label for="customer_phone" class="form-label">Nomor Telepon *</label>
                                     <input type="tel" class="form-control @error('customer_phone') is-invalid @enderror" 
                                            id="customer_phone" name="customer_phone" 
-                                           value="{{ old('customer_phone') }}" required>
+                                           value="{{ old('customer_phone', auth()->user()->phone) }}" 
+                                           pattern="[0-9]*" 
+                                           inputmode="numeric"
+                                           placeholder="Contoh: 08123456789"
+                                           required>
                                     @error('customer_phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                    <div class="form-text">Hanya masukkan angka tanpa spasi atau tanda baca</div>
                                 </div>
                             </div>
                         </div>
@@ -287,6 +292,7 @@
 </div>
 
 <script>
+// Handle form submission
 document.getElementById('checkoutForm').addEventListener('submit', function() {
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
@@ -295,6 +301,40 @@ document.getElementById('checkoutForm').addEventListener('submit', function() {
     submitBtn.disabled = true;
     btnText.classList.add('d-none');
     btnLoading.classList.remove('d-none');
+});
+
+// Phone number validation - only allow numbers
+document.getElementById('customer_phone').addEventListener('input', function(e) {
+    // Remove any non-numeric characters
+    let value = e.target.value.replace(/[^0-9]/g, '');
+    
+    // Update the input value
+    e.target.value = value;
+    
+    // Optional: Add formatting for Indonesian phone numbers
+    if (value.length > 0 && !value.startsWith('0') && !value.startsWith('62')) {
+        // If doesn't start with 0 or 62, assume it should start with 0
+        if (value.length < 10) {
+            e.target.value = '0' + value;
+        }
+    }
+});
+
+// Prevent paste of non-numeric content
+document.getElementById('customer_phone').addEventListener('paste', function(e) {
+    e.preventDefault();
+    
+    // Get pasted data
+    let paste = (e.clipboardData || window.clipboardData).getData('text');
+    
+    // Only keep numbers
+    let numbersOnly = paste.replace(/[^0-9]/g, '');
+    
+    // Set the cleaned value
+    this.value = numbersOnly;
+    
+    // Trigger input event to apply formatting
+    this.dispatchEvent(new Event('input', { bubbles: true }));
 });
 
 // Enhanced payment option styling

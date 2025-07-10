@@ -90,20 +90,34 @@
             <div class="card">
                 <div class="card-body">
                     <form method="GET" action="{{ route('customer.menu') }}" class="row g-3">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <label class="form-label">Cari Menu</label>
                             <input type="text" class="form-control" name="search" 
                                    value="{{ $search }}" placeholder="Cari nama menu atau deskripsi...">
                         </div>
-                        <div class="col-md-4 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary me-2">
+                        <div class="col-md-4">
+                            <label class="form-label">Filter Kategori</label>
+                            <select class="form-select" name="category">
+                                <option value="">Semua Kategori</option>
+                                <option value="Kopi Panas" {{ $category == 'Kopi Panas' ? 'selected' : '' }}>Kopi Panas</option>
+                                <option value="Kopi Dingin" {{ $category == 'Kopi Dingin' ? 'selected' : '' }}>Kopi Dingin</option>
+                                <option value="Non-Kopi" {{ $category == 'Non-Kopi' ? 'selected' : '' }}>Non-Kopi</option>
+                                <option value="Makanan" {{ $category == 'Makanan' ? 'selected' : '' }}>Makanan</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2 w-100">
                                 <i class="fas fa-search"></i> Cari
                             </button>
-                            <a href="{{ route('customer.menu') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i> Reset
-                            </a>
                         </div>
                     </form>
+                    @if($search || $category)
+                    <div class="mt-2">
+                        <a href="{{ route('customer.menu') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times"></i> Reset Filter
+                        </a>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -127,9 +141,13 @@
         <!-- Menu Items by Category -->
         @php
             $menusByCategory = $menus->groupBy('category');
+            $categoryOrder = ['Kopi Panas', 'Kopi Dingin', 'Non-Kopi', 'Makanan'];
+            $orderedCategories = collect($categoryOrder)->intersect($menusByCategory->keys())
+                               ->merge($menusByCategory->keys()->diff($categoryOrder));
         @endphp
 
-        @foreach($menusByCategory as $categoryName => $categoryMenus)
+        @foreach($orderedCategories as $categoryName)
+        @php $categoryMenus = $menusByCategory[$categoryName]; @endphp
         <div class="row mb-4">
             <div class="col-12">
                 <h3 class="border-bottom pb-2 mb-3">
@@ -142,25 +160,12 @@
             <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
                 <div class="card h-100 menu-card">
                     <div class="position-relative">
-                        @if($menu->image)
-                            <img src="{{ asset('images/'.$menu->image) }}" 
-                                 class="card-img-top" 
-                                 alt="{{ $menu->name }}" 
-                                 style="height: 200px; object-fit: cover;">
-                        @else
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                                 style="height: 200px;">
-                                <div class="text-center">
-                                    <i class="fas fa-image fa-3x text-muted mb-2"></i>
-                                    <p class="text-muted mb-0">No Image</p>
-                                </div>
-                            </div>
-                        @endif
-                        
-                        <!-- Category Badge -->
-                        <span class="position-absolute top-0 start-0 m-2">
-                            <span class="badge bg-primary">{{ $menu->category }}</span>
-                        </span>
+                        <img src="{{ $menu->image_url }}" 
+                             class="card-img-top" 
+                             alt="{{ $menu->name }}" 
+                             style="height: 200px; object-fit: cover;"
+                             loading="lazy"
+                             onerror="this.src='{{ asset('images/menu/americano.jpg') }}'">
                         
                         <!-- Availability Badge -->
                         <span class="position-absolute top-0 end-0 m-2">
