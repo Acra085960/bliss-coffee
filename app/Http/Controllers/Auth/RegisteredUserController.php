@@ -96,7 +96,6 @@ class RegisteredUserController extends Controller
                 return redirect()->route('verification.notice')
                     ->with('warning', 'WhatsApp verification unavailable. Email verification sent.');
             }
-            }
         } else {
             // Email verification
             event(new Registered($user));
