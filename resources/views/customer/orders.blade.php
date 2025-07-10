@@ -197,33 +197,65 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <!-- Order Items -->
-                                <h6>Item Pesanan:</h6>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Item Pesanan</h6>
+                                    <span class="badge bg-info">{{ $order->orderItems->sum('quantity') }} item</span>
+                                </div>
                                 <div class="order-items mb-3">
                                     @foreach($order->orderItems as $item)
-                                    <div class="d-flex align-items-center mb-2">
+                                    <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light">
                                         <div class="me-3">
-                                            @if($item->menu && $item->menu->image)
-                                                <img src="{{ asset('images/'.$item->menu->image) }}" 
-                                                     alt="{{ $item->menu->name }}" 
-                                                     class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
+                                            @php
+                                                $imageUrl = null;
+                                                $altText = 'Menu Image';
+                                                
+                                                // Try multiple image sources with priority
+                                                if ($item->menu && $item->menu->image_url) {
+                                                    $imageUrl = $item->menu->image_url;
+                                                    $altText = $item->menu->name;
+                                                } elseif ($item->menu && $item->menu->image) {
+                                                    $imageUrl = asset('images/' . $item->menu->image);
+                                                    $altText = $item->menu->name;
+                                                } elseif ($item->menu_image) {
+                                                    $imageUrl = asset('images/' . $item->menu_image);
+                                                    $altText = $item->menu_name ?? 'Menu';
+                                                }
+                                            @endphp
+                                            
+                                            @if($imageUrl)
+                                                <img src="{{ $imageUrl }}" 
+                                                     alt="{{ $altText }}" 
+                                                     class="rounded shadow-sm" 
+                                                     style="width: 55px; height: 55px; object-fit: cover;"
+                                                     onerror="this.src='{{ asset('images/menu/americano.jpg') }}'">
                                             @else
-                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                                     style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-image text-muted small"></i>
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center shadow-sm" 
+                                                     style="width: 55px; height: 55px;">
+                                                    <i class="fas fa-utensils text-muted"></i>
                                                 </div>
                                             @endif
                                         </div>
                                         <div class="flex-grow-1">
-                                            <strong>{{ $item->menu->name ?? 'Menu tidak tersedia' }}</strong>
-                                            <span class="badge bg-light text-dark ms-1">{{ $item->quantity }}x</span>
-                                            @if($item->preferences)
-                                                <br><small class="text-muted">
-                                                    <i class="fas fa-star text-warning"></i> {{ $item->preferences }}
-                                                </small>
-                                            @endif
-                                        </div>
-                                        <div class="text-end">
-                                            <small>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</small>
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <strong class="text-dark">{{ $item->menu->name ?? $item->menu_name ?? 'Menu tidak tersedia' }}</strong>
+                                                    <span class="badge bg-primary ms-2">{{ $item->quantity }}x</span>
+                                                    @if($item->menu && $item->menu->category)
+                                                        <br><small class="text-muted">
+                                                            <i class="fas fa-tag"></i> {{ $item->menu->category }}
+                                                        </small>
+                                                    @endif
+                                                    @if($item->preferences)
+                                                        <br><small class="text-warning">
+                                                            <i class="fas fa-star"></i> {{ $item->preferences }}
+                                                        </small>
+                                                    @endif
+                                                </div>
+                                                <div class="text-end">
+                                                    <div class="fw-bold text-success">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</div>
+                                                    <small class="text-muted">@Rp {{ number_format($item->price, 0, ',', '.') }}</small>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     @endforeach
@@ -272,6 +304,13 @@
                                     <a href="{{ route('customer.orders.show', $order) }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-eye me-1"></i>Detail Lengkap
                                     </a>
+                                    
+                                    @if(in_array($order->status, ['pending', 'processing']))
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="cancelOrder({{ $order->id }})">
+                                            <i class="fas fa-times me-1"></i>Batalkan Pesanan
+                                        </button>
+                                    @endif
+                                    
                                     @if($order->status === 'completed')
                                         <form action="{{ route('customer.orders.reorder', $order) }}" method="POST" style="display: inline;">
                                             @csrf
@@ -332,6 +371,32 @@ function resetFilters() {
     window.location.href = '{{ route("customer.orders") }}';
 }
 
+// Cancel order function
+function cancelOrder(orderId) {
+    if (confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
+        fetch(`/customer/orders/${orderId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to dashboard instead of reload
+                window.location.href = '{{ route("customer.dashboard") }}';
+            } else {
+                alert(data.error || 'Terjadi kesalahan saat membatalkan pesanan');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat membatalkan pesanan');
+        });
+    }
+}
+
 // Auto refresh for active orders
 @if($stats['pending_orders'] > 0)
 setInterval(() => {
@@ -386,8 +451,30 @@ setInterval(() => {
 }
 
 .order-items {
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
+}
+
+.order-items::-webkit-scrollbar {
+    width: 4px;
+}
+
+.order-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.order-items::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+.order-items::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.order-items .border-bottom:last-child {
+    border-bottom: none !important;
 }
 
 @media (max-width: 768px) {

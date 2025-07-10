@@ -321,7 +321,7 @@
                                 @csrf
                                 <button type="submit" class="btn btn-outline-danger btn-sm" 
                                         onclick="return confirm('Batalkan pesanan {{ $order->order_number }}?')">
-                                    <i class="fas fa-times"></i>
+                                    <i class="fas fa-times me-1"></i>Batalkan Pesanan
                                 </button>
                             </form>
                             @endif

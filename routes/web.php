@@ -85,7 +85,7 @@ Route::middleware(['auth', 'role:penjual', 'verified.flexible'])->prefix('penjua
     Route::put('/orders/{order}/status', [SellerOrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::post('/orders/batch-update-status', [SellerOrderController::class, 'batchUpdateStatus'])->name('orders.batchUpdate');
     Route::resource('/stock', SellerStockController::class);
-    Route::post('/stock/update-stock', [SellerStockController::class, 'updateStock'])->name('stock.update');
+    Route::post('/stock/update-stock', [SellerStockController::class, 'updateStock'])->name('stock.updateStock');
     Route::post('/stock/bulk-update', [SellerStockController::class, 'bulkUpdate'])->name('stock.bulk-update');
     Route::get('/stock/{stock}/movements', [SellerStockController::class, 'movements'])->name('stock.movements');
     Route::get('/low-stock', [SellerStockController::class, 'lowStock'])->name('stock.low-stock');

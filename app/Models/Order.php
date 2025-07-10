@@ -43,10 +43,10 @@ class Order extends Model
             ->withTimestamps();
     }
 
-    // Relasi ke order details (jika pakai tabel order_details)
+    // Relasi ke order items
     public function orderItems()
     {
-        return $this->hasMany(OrderDetail::class);
+        return $this->hasMany(OrderItem::class);
     }
 
     // Relasi ke feedback

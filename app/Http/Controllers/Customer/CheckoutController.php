@@ -81,12 +81,17 @@ public function process(Request $request)
 
         // Simpan item pesanan (OrderItem)
         foreach ($cart as $item) {
+            // Get menu data untuk menyimpan nama dan gambar sebagai fallback
+            $menu = \App\Models\Menu::find($item['id']);
+            
             \App\Models\OrderItem::create([
                 'order_id' => $order->id,
                 'menu_id' => $item['id'],
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
-                'preferences' => $item['preferences'] ?? null
+                'preferences' => $item['preferences'] ?? null,
+                'menu_name' => $menu ? $menu->name : ($item['name'] ?? 'Menu tidak tersedia'),
+                'menu_image' => $menu ? $menu->image : ($item['image'] ?? null)
             ]);
         }
 

@@ -16,7 +16,9 @@ class OrderController extends Controller
         $status = $request->get('status');
         $period = $request->get('period', '30'); // days
         
-        $query = Order::with(['orderItems.menu', 'user'])
+        $query = Order::with(['orderItems' => function($query) {
+                        $query->with('menu');
+                    }, 'user'])
                      ->where('user_id', auth()->id())
                      ->whereDate('created_at', '>=', now()->subDays($period));
         
@@ -127,7 +129,13 @@ public function trackOrder(Request $request, $orderNumber = null)
     
     // Hanya boleh cancel jika status pending/processing
     if (!in_array($order->status, ['pending'])) {
-        return response()->json(['error' => 'Pesanan tidak dapat dibatalkan'], 400);
+        $errorMessage = 'Pesanan tidak dapat dibatalkan';
+        
+        if ($request->expectsJson()) {
+            return response()->json(['error' => $errorMessage], 400);
+        }
+        
+        return redirect()->route('customer.dashboard')->with('error', $errorMessage);
     }
 
     // Inisialisasi Midtrans config
@@ -135,6 +143,8 @@ public function trackOrder(Request $request, $orderNumber = null)
     \Midtrans\Config::$isProduction = config('midtrans.is_production');
     \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
     \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+
+    $successMessage = 'Pesanan berhasil dibatalkan';
 
     // Jika pembayaran sudah settlement/capture, lakukan refund ke Midtrans
     if (in_array($order->payment_status, ['settlement', 'capture'])) {
@@ -145,6 +155,7 @@ public function trackOrder(Request $request, $orderNumber = null)
                 'reason' => 'Order dibatalkan oleh pembeli'
             ]);
             $order->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
+            $successMessage .= ' dan refund sedang diproses.';
         } catch (\Exception $e) {
             // Tambahkan kode log di sini
             \Log::error('Refund gagal', [
@@ -152,17 +163,30 @@ public function trackOrder(Request $request, $orderNumber = null)
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return response()->json(['error' => 'Refund gagal: ' . $e->getMessage()], 500);
+            
+            $errorMessage = 'Refund gagal: ' . $e->getMessage();
+            
+            if ($request->expectsJson()) {
+                return response()->json(['error' => $errorMessage], 500);
+            }
+            
+            return redirect()->route('customer.dashboard')->with('error', $errorMessage);
         }
     } else {
         // Jika belum dibayar, cukup update status
         $order->update(['status' => 'cancelled']);
     }
     
-    return response()->json([
-        'success' => true,
-        'message' => 'Pesanan berhasil dibatalkan' . (isset($refund) ? ' dan refund diproses.' : '')
-    ]);
+    // Handle response berdasarkan request type
+    if ($request->expectsJson()) {
+        return response()->json([
+            'success' => true,
+            'message' => $successMessage
+        ]);
+    }
+    
+    // Redirect ke dashboard dengan success message
+    return redirect()->route('customer.dashboard')->with('success', $successMessage);
 }
 
     private function getEstimatedTime($order)

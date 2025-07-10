@@ -14,7 +14,9 @@ class OrderItem extends Model
         'menu_id',
         'quantity',
         'price',
-        'preferences'
+        'preferences',
+        'menu_name',
+        'menu_image'
     ];
 
     protected $casts = [
