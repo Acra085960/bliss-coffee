@@ -71,10 +71,10 @@
         <div class="col-md-4">
             <select class="form-select" id="categoryFilter">
                 <option value="">Semua Kategori</option>
-                <option value="Kopi">Kopi</option>
+                <option value="Kopi Panas">Kopi Panas</option>
+                <option value="Kopi Dingin">Kopi Dingin</option>
                 <option value="Non-Kopi">Non-Kopi</option>
-                <option value="Makanan Ringan">Makanan Ringan</option>
-                <option value="Dessert">Dessert</option>
+                <option value="Makanan">Makanan</option>
             </select>
         </div>
         <div class="col-md-4">

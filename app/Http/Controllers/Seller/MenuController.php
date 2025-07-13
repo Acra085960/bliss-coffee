@@ -17,7 +17,7 @@ class MenuController extends Controller
 
     public function create()
     {
-        $categories = ['Kopi', 'Non-Kopi', 'Makanan Ringan', 'Dessert'];
+        $categories = ['Kopi Panas', 'Kopi Dingin', 'Non-Kopi', 'Makanan'];
         return view('penjual.menu.create', compact('categories'));
     }
 
@@ -56,7 +56,7 @@ class MenuController extends Controller
 
     public function edit(Menu $menu)
     {
-        $categories = ['Kopi', 'Non-Kopi', 'Makanan Ringan', 'Dessert'];
+        $categories = ['Kopi Panas', 'Kopi Dingin', 'Non-Kopi', 'Makanan'];
         return view('penjual.menu.edit', compact('menu', 'categories'));
     }
 

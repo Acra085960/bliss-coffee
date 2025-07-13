@@ -119,11 +119,21 @@
                         <div class="cart-item border-bottom p-3" data-key="{{ $key }}">
                             <div class="row align-items-center">
                                 <div class="col-md-2">
+                                    <!-- Debug: Show image path -->
+                                    @if(config('app.debug'))
+                                        <small class="text-muted">Image: {{ $item['image'] ?? 'NULL' }}</small><br>
+                                    @endif
+                                    
                                     @if($item['image'])
                                         <img src="{{ asset('images/'.$item['image']) }}" 
                                              alt="{{ $item['name'] }}" 
                                              class="img-fluid rounded"
-                                             style="width: 80px; height: 80px; object-fit: cover;">
+                                             style="width: 80px; height: 80px; object-fit: cover;"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px; display: none;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
                                     @else
                                         <div class="bg-light rounded d-flex align-items-center justify-content-center" 
                                              style="width: 80px; height: 80px;">
