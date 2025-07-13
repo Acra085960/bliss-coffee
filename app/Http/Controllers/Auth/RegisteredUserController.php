@@ -100,6 +100,10 @@ class RegisteredUserController extends Controller
         } else {
             // Email verification only - no phone verification required
             event(new Registered($user));
+            
+            // Log the user in immediately after registration for email verification
+            Auth::login($user);
+            
             return redirect()->route('verification.notice')
                 ->with('success', 'Registration successful! Please check your email for verification.');
         }

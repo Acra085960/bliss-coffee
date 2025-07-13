@@ -111,10 +111,9 @@ public function process(Request $request)
 }
 
     protected function processMidtransPayment($order)
-    {
-        // Contoh implementasi Midtrans Snap (sesuaikan dengan kebutuhanmu)
-        // Pastikan sudah mengatur konfigurasi Midtrans di config/services.php
- \Midtrans\Config::$serverKey = config('midtrans.server_key');
+{
+        
+    \Midtrans\Config::$serverKey = config('midtrans.server_key');
     \Midtrans\Config::$clientKey = config('midtrans.client_key');
     \Midtrans\Config::$isProduction = config('midtrans.is_production');
     \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
@@ -140,7 +139,7 @@ public function process(Request $request)
 
         // 3. Redirect ke halaman pembayaran (atau tampilkan snap token di view)
         return view('customer.payment', compact('order', 'snapToken'));
-    }
+}
 
     public function orderSuccess($orderId)
 {

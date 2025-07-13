@@ -428,7 +428,7 @@ function showBulkModal() {
 document.getElementById('stockForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    fetch('{{ route("penjual.stock.update") }}', {
+    fetch('{{ route("penjual.stock.updateStock") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

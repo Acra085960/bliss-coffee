@@ -18,6 +18,11 @@ class StockController extends Controller
     // Ambil semua outlet milik penjual yang login
     $outletIds = \App\Models\Outlet::where('user_id', auth()->id())->pluck('id');
 
+    // Check jika penjual belum memiliki outlet
+    if ($outletIds->isEmpty()) {
+        return view('penjual.stock.no-outlet');
+    }
+
     // Ambil semua master stock (bahan baku) untuk ditampilkan walaupun stoknya kosong
     $allStocks = Stock::where('is_active', true)
         ->whereIn('outlet_id', $outletIds)
@@ -91,8 +96,13 @@ class StockController extends Controller
     ]);
 
     // Ambil outlet_id milik penjual yang login
-    $outletId = auth()->user()->outlets()->first()->id; // sesuaikan jika perlu
-    $validated['outlet_id'] = $outletId;
+    $outlet = auth()->user()->outlets()->first();
+    
+    if (!$outlet) {
+        return back()->withErrors(['outlet' => 'Anda belum memiliki outlet. Hubungi owner untuk assignment outlet.']);
+    }
+    
+    $validated['outlet_id'] = $outlet->id;
 
     // Hanya ini yang dipakai!
     $stock = Stock::create($validated);
@@ -115,9 +125,10 @@ class StockController extends Controller
     public function edit(Stock $stock)
     {
         $outletIds = \App\Models\Outlet::where('user_id', auth()->id())->pluck('id');
-    if (!$outletIds->contains($stock->outlet_id)) {
-        abort(403);
-    }
+        
+        if ($outletIds->isEmpty() || !$outletIds->contains($stock->outlet_id)) {
+            abort(403, 'Anda tidak memiliki akses ke stok ini.');
+        }
 
         $categories = ['Kopi', 'Susu & Dairy', 'Gula & Pemanis', 'Bahan Tambahan', 'Kemasan', 'Lainnya'];
         $units = ['kg', 'liter', 'pcs', 'gram', 'ml', 'sachet', 'cup'];
@@ -127,6 +138,13 @@ class StockController extends Controller
 
     public function update(Request $request, Stock $stock)
     {
+        // Pastikan stock belongs to penjual's outlet
+        $outletIds = \App\Models\Outlet::where('user_id', auth()->id())->pluck('id');
+        
+        if ($outletIds->isEmpty() || !$outletIds->contains($stock->outlet_id)) {
+            abort(403, 'Anda tidak memiliki akses ke stok ini.');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:100',
@@ -151,6 +169,14 @@ class StockController extends Controller
             'reason' => 'required|string|max:255',
             'notes' => 'nullable|string'
         ]);
+
+        // Pastikan stock belongs to penjual's outlet
+        $outletIds = \App\Models\Outlet::where('user_id', auth()->id())->pluck('id');
+        $stock = Stock::findOrFail($request->stock_id);
+        
+        if ($outletIds->isEmpty() || !$outletIds->contains($stock->outlet_id)) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses ke stok ini.'], 403);
+        }
 
         DB::transaction(function () use ($request) {
             $stock = Stock::findOrFail($request->stock_id);

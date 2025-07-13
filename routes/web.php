@@ -58,10 +58,24 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();
-        return redirect()->route('login')->with('success', 'Email berhasil diverifikasi! Silakan login.');
+        
+        // After email verification, redirect to dashboard based on user role
+        $user = $request->user();
+        switch ($user->role) {
+            case 'pembeli':
+                return redirect()->route('customer.dashboard')->with('success', 'Email berhasil diverifikasi!');
+            case 'penjual':
+                return redirect()->route('penjual.dashboard')->with('success', 'Email berhasil diverifikasi!');
+            case 'manajer':
+                return redirect()->route('manager.dashboard')->with('success', 'Email berhasil diverifikasi!');
+            case 'owner':
+                return redirect()->route('owner.dashboard')->with('success', 'Email berhasil diverifikasi!');
+            default:
+                return redirect()->route('dashboard')->with('success', 'Email berhasil diverifikasi!');
+        }
     })->middleware(['signed'])->name('verification.verify');
 
-    Route::post('/email/verification-notification', function (Request $request) {
+    Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
         $request->user()->sendEmailVerificationNotification();
         return back()->with('message', 'Verification link sent!');
     })->middleware(['throttle:6,1'])->name('verification.send');

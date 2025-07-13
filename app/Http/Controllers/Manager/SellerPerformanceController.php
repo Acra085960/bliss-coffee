@@ -15,12 +15,8 @@ class SellerPerformanceController extends Controller
             ->withCount('orders')
             ->get();
 
-        // Tambahkan total_sales dan average_rating ke setiap seller
         foreach ($sellers as $seller) {
-            // Total penjualan (sum total_price dari semua order penjual ini)
             $seller->total_sales = $seller->orders()->sum('total_price');
-            // Rata-rata rating (jika ada relasi feedbacks)
-            $seller->average_rating = $seller->feedbacks()->avg('rating') ?? null;
         }
 
         return view('manager.performance', compact('sellers'));

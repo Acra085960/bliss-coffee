@@ -28,15 +28,10 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = auth()->user();
-
-        // Check verification based on what verification method user has
-        // If user has phone_verified_at, they chose WhatsApp verification (phone only)
-        // If user only has email_verified_at, they chose email verification (email only)
         
         $hasPhoneVerification = !is_null($user->phone_verified_at);
         $hasEmailVerification = !is_null($user->email_verified_at);
         
-        // If user has neither verification, they need to verify
         if (!$hasPhoneVerification && !$hasEmailVerification) {
             Auth::logout();
             return redirect()->route('login')->withErrors([
@@ -44,7 +39,6 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        // Redirect based on role
         switch ($user->role) {
             case 'pembeli':
                 return redirect()->intended(route('customer.dashboard'));
@@ -59,9 +53,6 @@ class AuthenticatedSessionController extends Controller
         }
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
