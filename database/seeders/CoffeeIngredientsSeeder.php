@@ -130,38 +130,38 @@ class CoffeeIngredientsSeeder extends Seeder
                 'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
-                'name' => 'Tepung Terigu',
+                'name' => 'Sandwich Club',
                 'category' => 'Bahan Makanan',
-                'current_stock' => 5.0,
+                'current_stock' => 15.0,
                 'minimum_stock' => 1.0,
                 'maximum_stock' => 25.0,
                 'unit' => 'kg',
                 'price_per_unit' => 12000,
-                'description' => 'Tepung terigu untuk muffin dan croissant',
+                'description' => 'Sandwich dengan isi daging ayam',
                 'is_active' => true,
                 'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
-                'name' => 'Roti Tawar',
+                'name' => 'Blueberry Muffin',
                 'category' => 'Bahan Makanan',
-                'current_stock' => 3.0,
-                'minimum_stock' => 0.5,
-                'maximum_stock' => 10.0,
+                'current_stock' => 15.0,
+                'minimum_stock' => 1.0,
+                'maximum_stock' => 25.0,
                 'unit' => 'kg',
                 'price_per_unit' => 25000,
-                'description' => 'Roti tawar untuk sandwich',
+                'description' => 'Muffin isi blueberry',
                 'is_active' => true,
                 'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
-                'name' => 'Daging Ayam',
+                'name' => 'Butter Croissant',
                 'category' => 'Bahan Makanan',
-                'current_stock' => 2.5,
-                'minimum_stock' => 0.5,
-                'maximum_stock' => 8.0,
+                'current_stock' => 15.0,
+                'minimum_stock' => 1.0,
+                'maximum_stock' => 25.0,
                 'unit' => 'kg',
                 'price_per_unit' => 45000,
-                'description' => 'Daging ayam untuk sandwich club',
+                'description' => 'Croissant dengan isi butter',
                 'is_active' => true,
                 'outlet_id' => $firstOutlet?->id ?? 1,
             ],
@@ -230,19 +230,13 @@ class CoffeeIngredientsSeeder extends Seeder
         // Recipe untuk setiap menu Makanan (dalam gram/ml per porsi)
         $foodRecipes = [
             'Muffin Blueberry' => [
-                'Tepung Terigu' => 0.08,    // 80 gram
-                'Gula' => 0.03,             // 30 gram
-                'Susu' => 0.06,             // 60 ml
+                'Blueberry Muffin' => 1.00,    
             ],
             'Croissant Butter' => [
-                'Tepung Terigu' => 0.12,    // 120 gram
-                'Gula' => 0.015,            // 15 gram
-                'Susu' => 0.04,             // 40 ml
+                'Croissant Butter' => 1.00,    
             ],
             'Sandwich Club' => [
-                'Roti Tawar' => 0.15,       // 150 gram (3 slices)
-                'Daging Ayam' => 0.1,       // 100 gram
-                'Susu' => 0.02,             // 20 ml (mayo base)
+                'Sandwich Club' => 1.00,       
             ],
         ];
 
