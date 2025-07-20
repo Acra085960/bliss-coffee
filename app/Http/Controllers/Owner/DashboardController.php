@@ -51,6 +51,35 @@ class DashboardController extends Controller
             ];
         }
 
+        // Laporan harian (7 hari terakhir)
+        $dailyReports = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dailyOrders = Order::whereDate('created_at', $date)->count();
+            $dailyRevenue = Order::whereDate('created_at', $date)->sum('total_price');
+            
+            $dailyReports[] = [
+                'date' => $date->format('d M Y'),
+                'day' => $date->format('l'),
+                'orders' => $dailyOrders,
+                'revenue' => $dailyRevenue,
+            ];
+        }
+
+        // Laporan tahunan (5 tahun terakhir)
+        $yearlyReports = [];
+        for ($i = 4; $i >= 0; $i--) {
+            $year = now()->subYears($i)->year;
+            $yearlyOrders = Order::whereYear('created_at', $year)->count();
+            $yearlyRevenue = Order::whereYear('created_at', $year)->sum('total_price');
+            
+            $yearlyReports[] = [
+                'year' => $year,
+                'orders' => $yearlyOrders,
+                'revenue' => $yearlyRevenue,
+            ];
+        }
+
         $activeEmployees = User::whereIn('role', ['penjual', 'manajer'])
             ->where('is_active', true)
             ->count();
@@ -103,6 +132,8 @@ for ($i = 11; $i >= 0; $i--) {
             'activeEmployees',
             'activeOutlets',
             'monthlyReports',
+            'dailyReports',
+            'yearlyReports',
             'feedbacks',
             'recentMonthlyRevenue',
             'recentMonthlyOrders',

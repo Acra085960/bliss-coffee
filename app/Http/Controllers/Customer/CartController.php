@@ -35,13 +35,45 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Menu tidak tersedia!');
         }
 
+        // Check stock availability for cold coffee items
+        $stockCheck = $menu->checkStockAvailability($request->quantity);
+        
+        if (!$stockCheck['can_make']) {
+            $errorMessage = 'Stok tidak mencukupi untuk ' . $menu->name;
+            if (!empty($stockCheck['missing_ingredients'])) {
+                $missingItems = array_column($stockCheck['missing_ingredients'], 'name');
+                $errorMessage .= '. Bahan yang kurang: ' . implode(', ', $missingItems);
+            }
+            return redirect()->back()->with('error', $errorMessage);
+        }
+
+        // Check if requested quantity exceeds available stock
+        if ($request->quantity > $stockCheck['max_quantity']) {
+            return redirect()->back()->with('error', 
+                'Maksimal pesanan untuk ' . $menu->name . ' adalah ' . $stockCheck['max_quantity'] . ' porsi');
+        }
+
         $cart = Session::get('cart', []);
         
         // Create unique key based on menu and preferences
         $cartKey = $menu->id . '_' . md5($request->preferences ?? '');
         
         if (isset($cart[$cartKey])) {
-            $cart[$cartKey]['quantity'] += $request->quantity;
+            $newQuantity = $cart[$cartKey]['quantity'] + $request->quantity;
+            
+            // Check if new total quantity is available
+            $newStockCheck = $menu->checkStockAvailability($newQuantity);
+            if (!$newStockCheck['can_make'] || $newQuantity > $newStockCheck['max_quantity']) {
+                $maxAllowed = $newStockCheck['max_quantity'] - $cart[$cartKey]['quantity'];
+                if ($maxAllowed <= 0) {
+                    return redirect()->back()->with('error', 
+                        'Tidak bisa menambah lagi. Stok ' . $menu->name . ' tidak mencukupi');
+                }
+                return redirect()->back()->with('error', 
+                    'Maksimal tambahan untuk ' . $menu->name . ' adalah ' . $maxAllowed . ' porsi lagi');
+            }
+            
+            $cart[$cartKey]['quantity'] = $newQuantity;
             
             // Limit max quantity per item
             if ($cart[$cartKey]['quantity'] > 10) {

@@ -41,12 +41,45 @@
 @section('content')
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Laporan Penjualan</h1>
+        <div>
+            <h1>Laporan Penjualan</h1>
+            @if($period)
+                <p class="text-muted mb-0">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    Menampilkan data: 
+                    <span class="badge bg-info">
+                        @switch($period)
+                            @case('today')
+                                Hari Ini ({{ now()->format('d F Y') }})
+                                @break
+                            @case('this_week')
+                                Minggu Ini ({{ now()->startOfWeek()->format('d M') }} - {{ now()->endOfWeek()->format('d M Y') }})
+                                @break
+                            @case('this_month')
+                                Bulan Ini ({{ now()->format('F Y') }})
+                                @break
+                            @case('this_year')
+                                Tahun Ini ({{ now()->format('Y') }})
+                                @break
+                        @endswitch
+                    </span>
+                </p>
+            @elseif($start || $end)
+                <p class="text-muted mb-0">
+                    <i class="fas fa-calendar-alt me-1"></i>
+                    Periode: 
+                    <span class="badge bg-secondary">
+                        {{ $start ? \Carbon\Carbon::parse($start)->format('d M Y') : 'Awal' }} - 
+                        {{ $end ? \Carbon\Carbon::parse($end)->format('d M Y') : 'Akhir' }}
+                    </span>
+                </p>
+            @endif
+        </div>
         <div class="btn-group">
-            <a href="{{ route('owner.reports.export', ['type' => 'csv']) }}" class="btn btn-success">
+            <a href="{{ route('owner.reports.export', ['type' => 'csv']) }}?{{ http_build_query(['start_date' => $start, 'end_date' => $end, 'outlet_id' => $outletId, 'period' => $period]) }}" class="btn btn-success">
                 <i class="fas fa-file-csv me-1"></i>Export CSV
             </a>
-            <a href="{{ route('owner.reports.export', ['type' => 'pdf']) }}" class="btn btn-danger">
+            <a href="{{ route('owner.reports.export', ['type' => 'pdf']) }}?{{ http_build_query(['start_date' => $start, 'end_date' => $end, 'outlet_id' => $outletId, 'period' => $period]) }}" class="btn btn-danger">
                 <i class="fas fa-file-pdf me-1"></i>Export PDF
             </a>
         </div>
@@ -68,19 +101,40 @@
     
     <form method="GET" class="row g-3 mb-3">
         <div class="col-auto">
+            <label for="period" class="form-label">Filter Periode</label>
+            <select name="period" id="period" class="form-select">
+                <option value="">Pilih Periode</option>
+                <option value="today" {{ $period == 'today' ? 'selected' : '' }}>Hari Ini</option>
+                <option value="this_week" {{ $period == 'this_week' ? 'selected' : '' }}>Minggu Ini</option>
+                <option value="this_month" {{ $period == 'this_month' ? 'selected' : '' }}>Bulan Ini</option>
+                <option value="this_year" {{ $period == 'this_year' ? 'selected' : '' }}>Tahun Ini</option>
+            </select>
+        </div>
+        <div class="col-auto">
             <label for="start_date" class="form-label">Tanggal Mulai</label>
-            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ $start }}">
+            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ $start }}" {{ $period ? 'disabled' : '' }}>
         </div>
         <div class="col-auto">
             <label for="end_date" class="form-label">Tanggal Selesai</label>
-            <input type="date" name="end_date" id="end_date" class="form-control" value="{{ $end }}">
+            <input type="date" name="end_date" id="end_date" class="form-control" value="{{ $end }}" {{ $period ? 'disabled' : '' }}>
+        </div>
+        <div class="col-auto">
+            <label for="outlet_id" class="form-label">Filter Outlet</label>
+            <select name="outlet_id" id="outlet_id" class="form-select">
+                <option value="">Semua Outlet</option>
+                @foreach($outlets as $outlet)
+                    <option value="{{ $outlet->id }}" {{ $outletId == $outlet->id ? 'selected' : '' }}>
+                        {{ $outlet->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
         <div class="col-auto d-flex align-items-end">
             <button class="btn btn-primary" type="submit">
                 <i class="fas fa-filter me-1"></i>Filter
             </button>
         </div>
-        @if($start || $end)
+        @if($start || $end || $outletId || $period)
         <div class="col-auto d-flex align-items-end">
             <a href="{{ route('owner.reports.index') }}" class="btn btn-secondary">
                 <i class="fas fa-times me-1"></i>Reset
@@ -132,6 +186,7 @@
                             <th>Tanggal</th>
                             <th>Nomor Pesanan</th>
                             <th>Customer</th>
+                            <th>Outlet</th>
                             <th>Total Harga</th>
                             <th>Status</th>
                             <th>Metode Pembayaran</th>
@@ -146,6 +201,7 @@
                                 <code>{{ $order->order_number ?? '#' . $order->id }}</code>
                             </td>
                             <td>{{ $order->customer_name ?? $order->user->name ?? '-' }}</td>
+                            <td>{{ $order->outlet->name ?? '-' }}</td>
                             <td class="text-end">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
                             <td>
                                 <span class="badge bg-{{ $order->status === 'completed' ? 'success' : ($order->status === 'pending' ? 'warning' : ($order->status === 'processing' ? 'info' : ($order->status === 'ready' ? 'primary' : 'secondary'))) }}">
@@ -156,7 +212,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4">
+                            <td colspan="8" class="text-center py-4">
                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                 <h5>Tidak ada data pesanan</h5>
                                 <p class="text-muted">Tidak ada pesanan pada periode yang dipilih.</p>
@@ -169,4 +225,40 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const periodSelect = document.getElementById('period');
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    
+    // Function to toggle date inputs based on period selection
+    function toggleDateInputs() {
+        const hasPeriod = periodSelect.value !== '';
+        
+        startDateInput.disabled = hasPeriod;
+        endDateInput.disabled = hasPeriod;
+        
+        if (hasPeriod) {
+            startDateInput.value = '';
+            endDateInput.value = '';
+        }
+    }
+    
+    // Function to clear period when date is selected
+    function clearPeriodOnDateChange() {
+        if (startDateInput.value || endDateInput.value) {
+            periodSelect.value = '';
+        }
+    }
+    
+    // Event listeners
+    periodSelect.addEventListener('change', toggleDateInputs);
+    startDateInput.addEventListener('change', clearPeriodOnDateChange);
+    endDateInput.addEventListener('change', clearPeriodOnDateChange);
+    
+    // Initialize on page load
+    toggleDateInputs();
+});
+</script>
 @endsection

@@ -108,6 +108,123 @@
         </div>
     </div>
 
+    {{-- Tabel Data Order Harian, Bulanan, dan Tahunan --}}
+    <div class="row mb-4">
+        {{-- Tabel Order Harian --}}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <span>Data Order Harian (7 Hari Terakhir)</span>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Total Order</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($dailyReports as $report)
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($report['date'])->format('d M') }}</td>
+                                <td>{{ $report['orders'] }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {{-- Tabel Order Bulanan --}}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <span>Data Order Bulanan</span>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>Bulan</th>
+                                <th>Total Order</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($monthlyReports as $report)
+                            <tr>
+                                <td>{{ $report['month'] }}</td>
+                                <td>{{ $report['orders'] }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {{-- Tabel Order Tahunan --}}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <span>Data Order Tahunan</span>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tahun</th>
+                                <th>Total Order</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($yearlyReports as $report)
+                            <tr>
+                                <td>{{ $report['year'] }}</td>
+                                <td>{{ $report['orders'] }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Tabel Penjualan Harian --}}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <span>Laporan Penjualan Harian (7 Hari Terakhir)</span>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Hari</th>
+                                <th>Jumlah Order</th>
+                                <th>Total Pendapatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($dailyReports as $report)
+                            <tr>
+                                <td>{{ $report['date'] }}</td>
+                                <td>{{ $report['day'] }}</td>
+                                <td>{{ $report['orders'] }}</td>
+                                <td>Rp {{ number_format($report['revenue'], 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Tabel Penjualan Bulanan --}}
     <div class="row mb-4">
         <div class="col-md-12">
@@ -136,6 +253,39 @@
                                 <td>{{ $report['orders'] }}</td>
                                 <td>Rp {{ number_format($report['revenue'], 0, ',', '.') }}</td>
                                 <td>{{ $report['top_menu'] }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Tabel Penjualan Tahunan --}}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <span>Laporan Penjualan Tahunan (5 Tahun Terakhir)</span>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tahun</th>
+                                <th>Jumlah Order</th>
+                                <th>Total Pendapatan</th>
+                                <th>Rata-rata per Bulan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($yearlyReports as $report)
+                            <tr>
+                                <td>{{ $report['year'] }}</td>
+                                <td>{{ number_format($report['orders']) }}</td>
+                                <td>Rp {{ number_format($report['revenue'], 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($report['revenue'] / 12, 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>

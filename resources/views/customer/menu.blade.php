@@ -167,9 +167,21 @@
                              loading="lazy"
                              onerror="this.src='{{ asset('images/menu/americano.jpg') }}'">
                         
-                        <!-- Availability Badge -->
+                        <!-- Stock Status Badge -->
                         <span class="position-absolute top-0 end-0 m-2">
-                            <span class="badge bg-success">Tersedia</span>
+                            @php
+                                $stockAvailability = $menu->checkStockAvailability(1);
+                                $stockStatus = $stockAvailability['stock_status'];
+                                $maxQuantity = $stockAvailability['max_quantity'];
+                            @endphp
+                            
+                            @if($stockStatus === 'out_of_stock')
+                                <span class="badge bg-danger">Habis</span>
+                            @elseif($stockStatus === 'low_stock')
+                                <span class="badge bg-warning text-dark">Stok Sedikit ({{ $maxQuantity }})</span>
+                            @else
+                                <span class="badge bg-success">Tersedia</span>
+                            @endif
                         </span>
                     </div>
                     
@@ -187,45 +199,75 @@
                                 </h4>
                             </div>
                             
-                            <!-- Add to Cart Form -->
-                            <form action="{{ route('customer.cart.add') }}" method="POST" class="add-to-cart-form">
-                                @csrf
-                                <input type="hidden" name="menu_id" value="{{ $menu->id }}">
-                                
-                                <!-- Quantity and Preferences -->
-                                <div class="row g-2 mb-2">
-                                    <div class="col-6">
-                                        <label class="form-label small">Jumlah</label>
-                                        <select class="form-select form-select-sm" name="quantity">
-                                            @for($i = 1; $i <= 10; $i++)
-                                                <option value="{{ $i }}">{{ $i }}</option>
-                                            @endfor
-                                        </select>
+                            <!-- Stock Info & Add to Cart Form -->
+                            @php
+                                $stockAvailability = $menu->checkStockAvailability(1);
+                                $canOrder = $stockAvailability['can_make'];
+                                $maxQuantity = $stockAvailability['max_quantity'];
+                                $missingIngredients = $stockAvailability['missing_ingredients'];
+                            @endphp
+                            
+                            @if($canOrder)
+                                <form action="{{ route('customer.cart.add') }}" method="POST" class="add-to-cart-form">
+                                    @csrf
+                                    <input type="hidden" name="menu_id" value="{{ $menu->id }}">
+                                    
+                                    <!-- Stock Info -->
+                                    @if(in_array($menu->category, ['Kopi Dingin', 'Kopi Panas', 'Non-Kopi', 'Makanan']) && $maxQuantity <= 10)
+                                        <div class="alert alert-warning alert-sm py-1 px-2 mb-2">
+                                            <small><i class="fas fa-info-circle"></i> Max tersedia: {{ $maxQuantity }} porsi</small>
+                                        </div>
+                                    @endif
+                                    
+                                    <!-- Quantity and Preferences -->
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6">
+                                            <label class="form-label small">Jumlah</label>
+                                            <select class="form-select form-select-sm" name="quantity">
+                                                @php
+                                                    $maxAllowed = in_array($menu->category, ['Kopi Dingin', 'Kopi Panas', 'Non-Kopi', 'Makanan']) ? min(10, $maxQuantity) : 10;
+                                                @endphp
+                                                @for($i = 1; $i <= $maxAllowed; $i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label small">Preferensi</label>
+                                            <select class="form-select form-select-sm" name="preferences">
+                                                <option value="">Standar</option>
+                                                <option value="Less Sugar">Gula Sedikit</option>
+                                                <option value="No Sugar">Tanpa Gula</option>
+                                                <option value="Extra Hot">Extra Panas</option>
+                                                <option value="Iced">Es</option>
+                                                <option value="Oat Milk">Susu Oat</option>
+                                                <option value="Almond Milk">Susu Almond</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="col-6">
-                                        <label class="form-label small">Preferensi</label>
-                                        <select class="form-select form-select-sm" name="preferences">
-                                            <option value="">Standar</option>
-                                            <option value="Less Sugar">Gula Sedikit</option>
-                                            <option value="No Sugar">Tanpa Gula</option>
-                                            <option value="Extra Hot">Extra Panas</option>
-                                            <option value="Iced">Es</option>
-                                            <option value="Oat Milk">Susu Oat</option>
-                                            <option value="Almond Milk">Susu Almond</option>
-                                        </select>
-                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100 btn-add-cart">
+                                        <span class="btn-text">
+                                            <i class="fas fa-cart-plus me-1"></i>Tambah ke Keranjang
+                                        </span>
+                                        <span class="btn-loading d-none">
+                                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                                            Menambahkan...
+                                        </span>
+                                    </button>
+                                </form>
+                            @else
+                                <!-- Out of Stock Message -->
+                                <div class="alert alert-danger alert-sm py-2 px-3 mb-2">
+                                    <small><i class="fas fa-exclamation-triangle"></i> Stok habis</small>
+                                    @if(!empty($missingIngredients))
+                                        <br><small class="text-muted">Kurang: {{ implode(', ', array_column($missingIngredients, 'name')) }}</small>
+                                    @endif
                                 </div>
-                                
-                                <button type="submit" class="btn btn-primary w-100 btn-add-cart">
-                                    <span class="btn-text">
-                                        <i class="fas fa-cart-plus me-1"></i>Tambah ke Keranjang
-                                    </span>
-                                    <span class="btn-loading d-none">
-                                        <span class="spinner-border spinner-border-sm" role="status"></span>
-                                        Menambahkan...
-                                    </span>
+                                <button type="button" class="btn btn-secondary w-100" disabled>
+                                    <i class="fas fa-times me-1"></i>Tidak Tersedia
                                 </button>
-                            </form>
+                            @endif
                         </div>
                     </div>
                 </div>

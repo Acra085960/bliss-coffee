@@ -81,9 +81,28 @@ public function process(Request $request)
 
         // Simpan item pesanan (OrderItem)
         foreach ($cart as $item) {
-            // Get menu data untuk menyimpan nama dan gambar sebagai fallback
+            // Check stock availability sebelum membuat order
             $menu = \App\Models\Menu::find($item['id']);
+            if ($menu) {
+                $stockCheck = $menu->checkStockAvailability($item['quantity']);
+                if (!$stockCheck['can_make']) {
+                    DB::rollback();
+                    $errorMessage = 'Stok tidak mencukupi untuk ' . $menu->name;
+                    if (!empty($stockCheck['missing_ingredients'])) {
+                        $missingItems = array_column($stockCheck['missing_ingredients'], 'name');
+                        $errorMessage .= '. Bahan yang kurang: ' . implode(', ', $missingItems);
+                    }
+                    return redirect()->back()->with('error', $errorMessage);
+                }
+                
+                // Reduce stock for the menu
+                if (!$menu->reduceStock($item['quantity'])) {
+                    DB::rollback();
+                    return redirect()->back()->with('error', 'Gagal mengurangi stok untuk ' . $menu->name);
+                }
+            }
             
+            // Get menu data untuk menyimpan nama dan gambar sebagai fallback
             \App\Models\OrderItem::create([
                 'order_id' => $order->id,
                 'menu_id' => $item['id'],

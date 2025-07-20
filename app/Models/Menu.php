@@ -139,4 +139,170 @@ class Menu extends Model
     {
         return $query->where('stock', '<', $threshold);
     }
+
+    // Relasi ke ingredients
+    public function menuIngredients()
+    {
+        return $this->hasMany(MenuIngredient::class);
+    }
+
+    public function ingredients()
+    {
+        return $this->belongsToMany(Stock::class, 'menu_ingredients', 'menu_id', 'stock_id')
+                    ->withPivot('quantity_needed')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Check if menu item can be made based on ingredient availability
+     * @param int $quantity Quantity of menu items to check
+     * @return array ['can_make' => boolean, 'max_quantity' => int, 'missing_ingredients' => array]
+     */
+    public function checkStockAvailability($quantity = 1)
+    {
+        // Gunakan sistem ingredient-based untuk Kopi Dingin, Kopi Panas, Non-Kopi, dan Makanan
+        if (!in_array($this->category, ['Kopi Dingin', 'Kopi Panas', 'Non-Kopi', 'Makanan'])) {
+            return [
+                'can_make' => $this->is_available && $this->stock >= $quantity,
+                'max_quantity' => $this->stock,
+                'missing_ingredients' => [],
+                'stock_status' => $this->stock > 0 ? 'available' : 'out_of_stock'
+            ];
+        }
+
+        $ingredients = $this->menuIngredients()->with('stock')->get();
+        
+        if ($ingredients->isEmpty()) {
+            return [
+                'can_make' => $this->is_available,
+                'max_quantity' => 999, // Unlimited if no ingredients defined
+                'missing_ingredients' => [],
+                'stock_status' => 'available'
+            ];
+        }
+
+        $canMake = true;
+        $maxQuantity = PHP_INT_MAX;
+        $missingIngredients = [];
+
+        foreach ($ingredients as $ingredient) {
+            $stock = $ingredient->stock;
+            $neededPerItem = $ingredient->quantity_needed;
+            $totalNeeded = $neededPerItem * $quantity;
+
+            if (!$stock || !$stock->is_active) {
+                $canMake = false;
+                $missingIngredients[] = [
+                    'name' => $stock->name ?? 'Unknown',
+                    'needed' => $totalNeeded,
+                    'available' => 0,
+                    'unit' => $stock->unit ?? 'unit'
+                ];
+                $maxQuantity = 0;
+                continue;
+            }
+
+            if ($stock->current_stock < $totalNeeded) {
+                $canMake = false;
+                $missingIngredients[] = [
+                    'name' => $stock->name,
+                    'needed' => $totalNeeded,
+                    'available' => $stock->current_stock,
+                    'unit' => $stock->unit
+                ];
+            }
+
+            // Calculate max quantity based on this ingredient
+            if ($neededPerItem > 0) {
+                $maxForThisIngredient = floor($stock->current_stock / $neededPerItem);
+                $maxQuantity = min($maxQuantity, $maxForThisIngredient);
+            }
+        }
+
+        // Jika ada missing ingredients, max quantity adalah 0
+        if (!empty($missingIngredients)) {
+            $maxQuantity = 0;
+        }
+
+        $stockStatus = 'available';
+        if ($maxQuantity == 0) {
+            $stockStatus = 'out_of_stock';
+        } elseif ($maxQuantity <= 5) {
+            $stockStatus = 'low_stock';
+        }
+
+        return [
+            'can_make' => $canMake && $this->is_available,
+            'max_quantity' => max(0, $maxQuantity),
+            'missing_ingredients' => $missingIngredients,
+            'stock_status' => $stockStatus
+        ];
+    }
+
+    /**
+     * Reduce stock when an order is made
+     * @param int $quantity Quantity ordered
+     * @return bool Success status
+     */
+    public function reduceStock($quantity = 1)
+    {
+        if (!in_array($this->category, ['Kopi Dingin', 'Kopi Panas', 'Non-Kopi', 'Makanan'])) {
+            // Sistem stock lama untuk kategori lain (jika ada)
+            if ($this->stock >= $quantity) {
+                $this->decrement('stock', $quantity);
+                return true;
+            }
+            return false;
+        }
+
+        $stockCheck = $this->checkStockAvailability($quantity);
+        
+        if (!$stockCheck['can_make']) {
+            return false;
+        }
+
+        // Reduce stock for each ingredient
+        $ingredients = $this->menuIngredients()->with('stock')->get();
+        
+        foreach ($ingredients as $ingredient) {
+            $stock = $ingredient->stock;
+            $totalNeeded = $ingredient->quantity_needed * $quantity;
+            
+            if ($stock && $stock->current_stock >= $totalNeeded) {
+                $stock->decrement('current_stock', $totalNeeded);
+                
+                // Create stock movement record
+                \App\Models\StockMovement::create([
+                    'stock_id' => $stock->id,
+                    'user_id' => auth()->id() ?? 1,
+                    'type' => 'out',
+                    'quantity' => $totalNeeded,
+                    'previous_stock' => $stock->current_stock + $totalNeeded,
+                    'new_stock' => $stock->current_stock,
+                    'reason' => 'Order processing',
+                    'notes' => "Used for {$this->name} x{$quantity}"
+                ]);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get stock status for display
+     */
+    public function getStockStatusAttribute()
+    {
+        $availability = $this->checkStockAvailability(1);
+        return $availability['stock_status'];
+    }
+
+    /**
+     * Get maximum available quantity
+     */
+    public function getMaxAvailableQuantityAttribute()
+    {
+        $availability = $this->checkStockAvailability(1);
+        return $availability['max_quantity'];
+    }
 }

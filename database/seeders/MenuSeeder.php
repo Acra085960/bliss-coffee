@@ -90,6 +90,14 @@ class MenuSeeder extends Seeder
                 'image' => 'menu/cold_brew.jpeg',
                 'is_available' => true,
             ],
+            [
+                'name' => 'Iced Cappuccino',
+                'description' => 'Cappuccino dengan es, perfect balance antara espresso dan milk foam',
+                'price' => 28000,
+                'category' => 'Kopi Dingin',
+                'image' => 'menu/iced_cappuccino.jpg',
+                'is_available' => true,
+            ],
             
             // Non-Kopi
             [
