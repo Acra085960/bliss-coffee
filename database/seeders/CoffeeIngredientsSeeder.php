@@ -16,8 +16,8 @@ class CoffeeIngredientsSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get first outlet for default assignment
-        $firstOutlet = \App\Models\Outlet::first();
+        // Get all outlets for stock assignment
+        $outlets = \App\Models\Outlet::all();
         
         // 9 bahan dasar untuk kopi dan non-kopi
         $basicIngredients = [
@@ -31,7 +31,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 150000,
                 'description' => 'Biji kopi untuk semua jenis kopi',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Gula',
@@ -43,7 +42,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 15000,
                 'description' => 'Gula putih untuk pemanis',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Susu',
@@ -55,7 +53,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 18000,
                 'description' => 'Susu segar untuk latte dan cappuccino',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Sirup',
@@ -67,7 +64,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 25000,
                 'description' => 'Sirup berbagai rasa untuk varian kopi',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Air',
@@ -79,7 +75,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 500,
                 'description' => 'Air bersih untuk brewing kopi',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Es Batu',
@@ -91,7 +86,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 3000,
                 'description' => 'Es batu untuk minuman dingin',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Bubuk Teh',
@@ -103,7 +97,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 80000,
                 'description' => 'Bubuk teh hitam untuk teh dan chai',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Bubuk Teh Hijau',
@@ -115,7 +108,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 120000,
                 'description' => 'Bubuk teh hijau matcha premium',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Bubuk Coklat',
@@ -127,7 +119,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 95000,
                 'description' => 'Bubuk coklat premium untuk hot chocolate',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Sandwich Club',
@@ -139,7 +130,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 12000,
                 'description' => 'Sandwich dengan isi daging ayam',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Blueberry Muffin',
@@ -151,7 +141,6 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 25000,
                 'description' => 'Muffin isi blueberry',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
             [
                 'name' => 'Butter Croissant',
@@ -163,35 +152,49 @@ class CoffeeIngredientsSeeder extends Seeder
                 'price_per_unit' => 45000,
                 'description' => 'Croissant dengan isi butter',
                 'is_active' => true,
-                'outlet_id' => $firstOutlet?->id ?? 1,
             ],
         ];
 
         $ingredientIds = [];
         
-        // Create atau update ingredients
-        foreach ($basicIngredients as $ingredient) {
-            $stock = Stock::updateOrCreate(
-                ['name' => $ingredient['name']],
-                $ingredient
-            );
-            $ingredientIds[$ingredient['name']] = $stock->id;
+        // Create atau update ingredients untuk setiap outlet
+        foreach ($outlets as $outlet) {
+            foreach ($basicIngredients as $ingredient) {
+                // Tambahkan outlet_id ke data ingredient
+                $ingredientData = $ingredient;
+                $ingredientData['outlet_id'] = $outlet->id;
+                
+                $stock = Stock::updateOrCreate(
+                    [
+                        'name' => $ingredient['name'],
+                        'outlet_id' => $outlet->id
+                    ],
+                    $ingredientData
+                );
+                
+                // Simpan ID stock untuk outlet pertama (untuk recipe mapping)
+                if ($outlet->id === $outlets->first()->id) {
+                    $ingredientIds[$ingredient['name']] = $stock->id;
+                }
 
-            // Create initial stock movement
-            $seller = User::where('role', 'penjual')->first();
-            if ($seller) {
-                StockMovement::updateOrCreate([
-                    'stock_id' => $stock->id,
-                    'user_id' => $seller->id,
-                    'type' => 'in',
-                    'reason' => 'Initial stock for coffee ingredients'
-                ], [
-                    'quantity' => $stock->current_stock,
-                    'previous_stock' => 0,
-                    'new_stock' => $stock->current_stock,
-                    'notes' => 'Stock item created for coffee ingredients system'
-                ]);
+                // Create initial stock movement
+                $seller = User::where('role', 'penjual')->first();
+                if ($seller) {
+                    StockMovement::updateOrCreate([
+                        'stock_id' => $stock->id,
+                        'user_id' => $seller->id,
+                        'type' => 'in',
+                        'reason' => 'Initial stock for coffee ingredients'
+                    ], [
+                        'quantity' => $stock->current_stock,
+                        'previous_stock' => 0,
+                        'new_stock' => $stock->current_stock,
+                        'notes' => "Stock item created for coffee ingredients system - Outlet: {$outlet->name}"
+                    ]);
+                }
             }
+            
+            $this->command->info("Created ingredients for outlet: {$outlet->name}");
         }
 
         // Recipe untuk setiap menu Kopi Dingin (dalam gram/ml per porsi)
