@@ -103,6 +103,7 @@ class DatabaseSeeder extends Seeder
             OutletSeeder::class,
             MenuSeeder::class,
             StockSeeder::class,
+            CoffeeIngredientsSeeder::class,
             OrderSeeder::class,
         ]);
     }

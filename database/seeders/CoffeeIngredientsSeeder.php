@@ -172,7 +172,10 @@ class CoffeeIngredientsSeeder extends Seeder
         // Create atau update ingredients
         foreach ($basicIngredients as $ingredient) {
             $stock = Stock::updateOrCreate(
-                ['name' => $ingredient['name']],
+                [
+                    'name' => $ingredient['name'],
+                    'outlet_id' => $ingredient['outlet_id']
+                ],
                 $ingredient
             );
             $ingredientIds[$ingredient['name']] = $stock->id;
@@ -233,7 +236,7 @@ class CoffeeIngredientsSeeder extends Seeder
                 'Blueberry Muffin' => 1.00,    
             ],
             'Croissant Butter' => [
-                'Croissant Butter' => 1.00,    
+                'Butter Croissant' => 1.00,    
             ],
             'Sandwich Club' => [
                 'Sandwich Club' => 1.00,       
